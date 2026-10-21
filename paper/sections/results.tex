@@ -1,0 +1,96 @@
+\section{Results}\label{sec:results}
+All numbers in this section are generated from the result files in the repository. The confidence threshold for each variant was chosen on the validation split by detection F1, and each variant was then scored once on the test split.
+
+\subsection{Detection and end-to-end accuracy}
+Table~\ref{tab:main} compares three operating points of the same fine-tuned model, which reaches a validation mAP50 of \valMapFifty{} and mAP50-95 of \valMapFiftyNinetyFive{}. Those headline scores say little about deployment behavior. At the default confidence of \valDefConf{}, the exported end-to-end head produced \valDefFields{} boxes for 300 true fields, and precision was only \valDefPrec\%. Of those, \valDefDup{} were duplicates of a field that already had a box, with a mean confidence of \valDefDupConf{} against \valDefTopConf{} for the top box of each field, and \valDefMissed{} fields had no box above the threshold. The NMS-free head is therefore not duplicate-free after a short nano fine-tune.
+
+\begin{table}[t]
+\centering
+\caption{Test-split results, 60 documents and 300 fields (240 with text). P and R are detection precision and recall at IoU 0.5. OCR is exact match among localized text fields. End-to-end (E2E) is the share of text fields both localized and read exactly, with its Wilson 95\% interval.}
+\label{tab:main}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+Variant (conf) & P & R & OCR & E2E & 95\% interval \\
+\midrule
+NMS-free (\valDefConf, default) & \valDefPrec & \valDefRec & \valDefOcrStage & \valDefEndToEnd & \valDefEndToEndLo{} to \valDefEndToEndHi \\
+NMS-free (\valFreeConf, tuned) & \valFreePrec & \valFreeRec & \valFreeOcrStage & \valFreeEndToEnd & \valFreeEndToEndLo{} to \valFreeEndToEndHi \\
+Class NMS (\valNmsConf, tuned) & \valNmsPrec & \valNmsRec & \valNmsOcrStage & \valNmsEndToEnd & \valNmsEndToEndLo{} to \valNmsEndToEndHi \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.95\columnwidth]{figures/variants.png}
+\caption{Precision, recall, and end-to-end accuracy for the three operating points in Table~\ref{tab:main}. All values are percentages on one axis.}
+\label{fig:variants}
+\end{figure}
+
+Three observations follow. First, adding class-wise suppression before OCR lifts precision from \valDefPrec\% to \valNmsPrec\% and end-to-end accuracy to \valNmsEndToEnd\%, and it also removes duplicate crops from the OCR stage. Second, tuning an NMS-free detector for validation F1 chose a high threshold (\valFreeConf{}) that traded away recall, and end-to-end accuracy fell to \valFreeEndToEnd\%, below the untuned default. F1 is not the end-to-end objective, and a threshold chosen for one can hurt the other. Third, the OCR stage is rarely the bottleneck. Among correctly localized text fields it was exact \valNmsOcrStage\% of the time with class NMS, and \valNmsOcrErrAllAccount{} \valNmsOcrErrCount{} errors were on account numbers: \valOcrErrExamples.
+
+Fig.~\ref{fig:perclass} gives the per-class breakdown for the class-NMS variant. Account number is the weakest class, in both recall (\valRecAccountNumber\%) and OCR (\valOcrAccountNumber\%).
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.95\columnwidth]{figures/per_class.png}
+\caption{Per-class detection precision, recall, and OCR exact match for the class-NMS variant on the test split. The vertical axis starts at 60 percent. Signatures are detected but not read.}
+\label{fig:perclass}
+\end{figure}
+
+\subsection{Comparison with full-page Tesseract}
+Full-page Tesseract found \valBaseCapture\% of the 240 text strings somewhere on the page (95\% interval \valBaseLo{} to \valBaseHi), which is higher than the \valNmsEndToEnd\% end-to-end figure. We do not read this as a win for either side. On clean, large, printed text, page-level OCR reads almost every string, and our matching rule is lenient to it, because it never has to say which field a string belongs to. The detect-then-read pipeline pays for field attribution, which the baseline does not provide at all, and on this dataset it does not buy better reading. Whether detection helps on degraded scans, where page-level OCR loses accuracy \cite{thammarak2022,reisswig2019}, is the question this dataset cannot answer. Baseline cost was \valBaseSecPerDoc{} seconds per document on one process.
+
+\subsection{Inference pattern}
+Table~\ref{tab:pattern} and Fig.~\ref{fig:pattern} compare three ways of running the same detector over \valPatDocs{} documents in Spark on two partitions, with detection only. All three produced the same \valPatBoxes{} boxes, so they compute the same thing.
+
+\begin{table}[t]
+\centering
+\caption{Inference pattern timing, mean and standard deviation of \valPatRepeats{} runs after one warm-up. CPU only, two cores.}
+\label{tab:pattern}
+\small
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Pattern & Seconds & Docs/s & Speedup \\
+\midrule
+Row-wise UDF, model per row & \valPatRowUdfSec{} $\pm$ \valPatRowUdfSd & \valPatRowUdfDps & 1.0 \\
+\texttt{mapInPandas}, batch 1 & \valPatPartOneSec{} $\pm$ \valPatPartOneSd & \valPatPartOneDps & \valPatPartOneSpeedup \\
+\texttt{mapInPandas}, batch 16 & \valPatPartSixteenSec{} $\pm$ \valPatPartSixteenSd & \valPatPartSixteenDps & \valPatPartSixteenSpeedup \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.95\columnwidth]{figures/pattern.png}
+\caption{Wall time for \valPatDocs{} documents under three inference patterns. Error bars are one standard deviation over \valPatRepeats{} runs.}
+\label{fig:pattern}
+\end{figure}
+
+Loading the model once per partition was \valPatPartSixteenSpeedup{} times faster than loading it per row. The implied cost of one model load is about \valPatLoadMs{} ms, which is small because the nano model is small, and the benefit would grow with a larger model and a CUDA context to initialize, which we did not measure. Arrow batch size 16 was not distinguishable from batch size 1 here (\valPatPartSixteenSec{} against \valPatPartOneSec{} seconds, within one standard deviation). The batching benefit that matters on a GPU is therefore untested by this experiment.
+
+\subsection{Dataflow}
+Fig.~\ref{fig:dataflow} contrasts the two inference patterns that Table~\ref{tab:pattern} measures.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.95\columnwidth]{figures/dataflow.png}
+\caption{Row-wise UDF versus partition-level \texttt{mapInPandas}. The first reloads the model for every row. The second loads it once per partition and then scores Arrow batches.}
+\label{fig:dataflow}
+\end{figure}
+
+\section{Discussion and Limitations}
+\textbf{What this supports.} The pipeline runs end to end under Spark, produces field-labeled text, and is reproducible from one repository. Loading the model per partition is faster than per row, and detection quality at a fixed threshold can differ sharply from the threshold-free mAP that training reports.
+
+\textbf{What it does not support.} The dataset is synthetic, clean, and generated from five templates of font and layout variation, so it is easy, and the high validation mAP reflects that. The results do not show that detection beats full-page OCR on real documents, and on this data it did not. There is a single training run and a 60-document test split, so intervals are wide. The detector is the nano model, trained on CPU. GPU execution, multi-node scaling, cluster start-up, cost, and Amazon Textract were not measured, and the GPU configuration in the released code is untested. Stronger baselines, such as LayoutLMv3 \cite{huang2022layoutlmv3}, Donut \cite{kim2022donut}, and other open OCR engines, were not run.
+
+\textbf{Cold start.} The batch design assumes cluster start-up cost is amortized over a queue of documents. It is a poor fit for sub-second interactive requests, for which a warm cluster or a dedicated model server is the better choice.
+
+\textbf{Next steps.} The most informative next experiment is the same protocol on real, degraded scans with field-level labels, where the comparison with page-level OCR could go either way, followed by the GPU path on EMR.
+
+\section{Ethical Considerations}
+Checks and identification documents contain sensitive personal data. All data here is synthetic. Any use of real documents should follow the institution\textquotesingle{}s data-governance process and data-minimization principles such as those in the GDPR \cite{gdpr}, with encryption at rest, separate access scopes for raw images and structured output, and human review for low-confidence detections rather than automated decisions. Synthetic data from a few templates does not establish fair performance across banks, regions, and languages, and that should be tested directly.
+
+\section{Conclusion}
+We built and released a Spark pipeline that detects financial form fields with YOLO26 and reads each with Tesseract, and we checked it by running it. The integration defects were real and are cataloged. On clean synthetic forms the pipeline reaches \valNmsEndToEnd\% end-to-end field accuracy with class-wise suppression, the end-to-end head emitted duplicates without it, and full-page OCR read the same strings at least as well, without saying which field each belonged to. Loading the model once per partition was \valPatPartSixteenSpeedup{} times faster than per row on CPU. Real scanned documents, GPU execution, and stronger baselines are the open questions, and the released code is meant to make those experiments cheap to run.

@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: System packages
+        run: sudo apt-get update && sudo apt-get install -y tesseract-ocr
+
+      - name: Python dependencies
+        run: |
+          pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+          pip install -r requirements-dev.txt
+          pip install -e . --no-deps
+
+      - name: Unit tests (fast)
+        run: pytest -q -m "not e2e"
+
+      - name: End-to-end smoke test (real Spark, real YOLO26 weights, real Tesseract)
+        run: pytest -q -m e2e

@@ -1,0 +1,29 @@
+\documentclass[conference]{IEEEtran}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx,booktabs,xcolor,url,listings,textcomp}
+\usepackage{cite}
+\input{results_macros}
+\urldef{\repourl}\url{https://github.com/REPLACE-WITH-YOUR-ACCOUNT/findoc-yolo26-spark}
+\lstset{basicstyle=\ttfamily\scriptsize,breaklines=true,frame=single,xleftmargin=2pt,xrightmargin=2pt,
+  keywordstyle=\color{blue!60!black},commentstyle=\color{gray},showstringspaces=false,captionpos=b,aboveskip=4pt}
+\makeatletter
+\renewcommand\IEEEkeywordsname{Index Terms}
+\def\abstract{\normalfont\bfseries\itshape Abstract. \bfseries}
+\def\IEEEkeywords{\normalfont\bfseries\itshape Index Terms. \bfseries}
+\makeatother
+\begin{document}
+\title{Field-Level Financial Document Extraction with YOLO26 and Apache Spark: A Reproducible Pipeline, Its Failure Modes, and a Controlled Evaluation}
+\author{\IEEEauthorblockN{Ram Ghadiyaram}\IEEEauthorblockA{Independent Researcher\\Celina, TX, USA\\ram.ghadiyaram@gmail.com\\ORCID: 0009-0006-3730-0914}
+\and\IEEEauthorblockN{Sashi Kiran Kaata}\IEEEauthorblockA{Independent Researcher\\Glendale, AZ, USA\\sashikiran9@gmail.com\\ORCID: 0009-0002-7980-2905}}
+\maketitle
+\begin{abstract}
+Putting a vision model inside a Spark job looks routine and fails quietly. We build a field-level document extraction pipeline in which YOLO26 localizes fields and Tesseract reads each crop, executed with \texttt{mapInPandas} so the model loads once per partition. We catalog the integration defects that made a first version wrong, each checked against a running system, including a Spark image source that returns decoded pixels instead of file bytes and an Arrow failure on Spark 3.5 with JDK 21. On a synthetic form dataset with exact ground truth, a CPU-fine-tuned YOLO26n reaches \valNmsPrec\% detection precision and \valNmsRec\% recall, and \valNmsEndToEnd\% of text fields are read correctly end to end. Without class-wise suppression the end-to-end head emitted \valDefDup{} duplicate boxes and precision fell to \valDefPrec\%. Full-page Tesseract captured \valBaseCapture\% of the strings but does not say which field they belong to, so we do not claim an accuracy advantage. Loading the model per partition was \valPatPartSixteenSpeedup{} times faster than per row on two CPU cores. Data are synthetic and no GPU, EMR, or Textract measurements are reported. All numbers are generated from files in the released repository.
+\end{abstract}
+\begin{IEEEkeywords}
+Financial document intelligence, YOLO26, Apache Spark, document field extraction, OCR, reproducibility.
+\end{IEEEkeywords}
+\input{sections/intro}
+\input{sections/design}
+\input{sections/results}
+\input{sections/refs}
+\end{document}

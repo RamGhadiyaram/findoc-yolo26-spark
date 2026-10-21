@@ -1,0 +1,18 @@
+digraph flow {
+  rankdir=LR; nodesep=0.3; ranksep=0.35; fontname="Helvetica";
+  node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=11, margin="0.12,0.06", fillcolor="#E8F0FE", color="#1F4E8C", penwidth=1.3];
+  edge [fontname="Helvetica", fontsize=9, color="#444444", arrowsize=0.7];
+
+  subgraph cluster_bad { label="Anti-pattern: row-wise UDF"; labeljust=l; fontsize=11; color="#B00020"; style="rounded,dashed";
+    r1 [label="row 1", fillcolor="#FDE7E9", color="#B00020"]; m1 [label="load model", fillcolor="#FDE7E9", color="#B00020"];
+    r2 [label="row 2", fillcolor="#FDE7E9", color="#B00020"]; m2 [label="load model", fillcolor="#FDE7E9", color="#B00020"];
+    r1 -> m1 -> r2 -> m2 [color="#B00020"]; m2 -> r1 [label="repeats for every row", style=dashed, color="#B00020", constraint=false];
+  }
+  subgraph cluster_good { label="Corrected: mapInPandas per partition"; labeljust=l; fontsize=11; color="#1B7F3B"; style="rounded";
+    ml [label="load model\n(once)", fillcolor="#E4F5EA", color="#1B7F3B"];
+    b1 [label="Arrow batch of\nN images", fillcolor="#E4F5EA", color="#1B7F3B"];
+    det [label="one batched\nYOLO26 call", fillcolor="#E4F5EA", color="#1B7F3B"];
+    cr [label="crop +\nTesseract", fillcolor="#E4F5EA", color="#1B7F3B"];
+    ml -> b1 -> det -> cr; cr -> b1 [label="next batch", style=dashed, constraint=false];
+  }
+}

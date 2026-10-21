@@ -1,0 +1,60 @@
+{
+  "overall_precision": 0.7594,
+  "overall_recall": 0.9467,
+  "pipeline_end_to_end_field_accuracy": 0.9208,
+  "per_class": {
+    "account_number": {
+      "precision": 0.6812,
+      "recall": 0.7833,
+      "ocr_exact": 0.9362,
+      "n": 60
+    },
+    "amount": {
+      "precision": 0.6316,
+      "recall": 1.0,
+      "ocr_exact": 1.0,
+      "n": 60
+    },
+    "date": {
+      "precision": 0.8824,
+      "recall": 1.0,
+      "ocr_exact": 1.0,
+      "n": 60
+    },
+    "name": {
+      "precision": 0.8261,
+      "recall": 0.95,
+      "ocr_exact": 1.0,
+      "n": 60
+    },
+    "signature": {
+      "precision": 0.8219,
+      "recall": 1.0,
+      "ocr_exact": null,
+      "n": 60
+    }
+  },
+  "duplicate_boxes": 90,
+  "duplicate_mean_conf": 0.592,
+  "top_box_mean_conf": 0.721,
+  "missed_fields": 16,
+  "ocr_errors": [
+    {
+      "cls": "account_number",
+      "truth": "8342430310",
+      "read": "3342430310"
+    },
+    {
+      "cls": "account_number",
+      "truth": "4077916523",
+      "read": "1077916523"
+    },
+    {
+      "cls": "account_number",
+      "truth": "0188416938",
+      "read": "018841693"
+    }
+  ],
+  "fullpage_tesseract_field_capture": 0.9958,
+  "fullpage_tesseract_seconds_per_doc": 0.63
+}

@@ -1,0 +1,72 @@
+{
+  "overall_precision": 0.9868,
+  "overall_recall": 0.9933,
+  "pipeline_end_to_end_field_accuracy": 0.9708,
+  "per_class": {
+    "account_number": {
+      "precision": 1.0,
+      "recall": 0.9667,
+      "ocr_exact": 0.9138,
+      "n": 60
+    },
+    "amount": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "ocr_exact": 1.0,
+      "n": 60
+    },
+    "date": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "ocr_exact": 1.0,
+      "n": 60
+    },
+    "name": {
+      "precision": 0.9375,
+      "recall": 1.0,
+      "ocr_exact": 1.0,
+      "n": 60
+    },
+    "signature": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "ocr_exact": null,
+      "n": 60
+    }
+  },
+  "duplicate_boxes": 0,
+  "duplicate_mean_conf": null,
+  "top_box_mean_conf": 0.749,
+  "missed_fields": 2,
+  "ocr_errors": [
+    {
+      "cls": "account_number",
+      "truth": "8302653675",
+      "read": "B302653675"
+    },
+    {
+      "cls": "account_number",
+      "truth": "4077916523",
+      "read": "1077916523"
+    },
+    {
+      "cls": "account_number",
+      "truth": "0188416938",
+      "read": "018841693"
+    },
+    {
+      "cls": "account_number",
+      "truth": "8293952884",
+      "read": "293952884"
+    },
+    {
+      "cls": "account_number",
+      "truth": "7714983838",
+      "read": "1714983838"
+    }
+  ],
+  "fullpage_tesseract_field_capture": 0.9958,
+  "fullpage_tesseract_seconds_per_doc": 0.63,
+  "chosen_conf": 0.15,
+  "val_f1_at_chosen": 0.99
+}

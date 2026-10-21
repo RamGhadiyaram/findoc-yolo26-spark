@@ -1,0 +1,23 @@
+__pycache__/
+*.pyc
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+# generated, large, or reproducible from `make e2e`
+work/
+runs/
+*.pt
+*.onnx
+# LaTeX build products (the PDF is committed under paper/ on purpose)
+paper/*.aux
+paper/*.log
+paper/*.out
+paper/*.bbl
+paper/*.blg
+.DS_Store
+
+# preview renders
+paper/pg-*.png
+paper/hi-*.png
+paper/fin-*.png
