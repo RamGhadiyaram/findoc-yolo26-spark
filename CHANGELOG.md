@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Added a Colab GPU notebook (`notebooks/colab_gpu_run.ipynb`, `docs/COLAB.md`). It writes to `results_gpu/` and does not touch the CPU results used in the paper.
+- Added `FINDOC_DEVICE` (default `cpu`) to choose the inference device, and a `RESULTS` variable in the Makefile. CPU behavior is unchanged.
+- The GPU notebook has not been run yet. Nothing in the paper claims a GPU measurement.
+
 ## 0.1.0
 
 First runnable release. Everything below was found by running the code, not by reading it.

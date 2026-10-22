@@ -59,3 +59,7 @@ Synthetic data only, CPU only. The GPU configuration (`--gpu`) and the AWS deplo
 ## License
 
 MIT.
+
+## GPU run
+
+A ready-made Colab notebook lives in `notebooks/colab_gpu_run.ipynb` (see `docs/COLAB.md`). It writes to `results_gpu/`.
