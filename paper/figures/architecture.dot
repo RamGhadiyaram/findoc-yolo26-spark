@@ -1,0 +1,31 @@
+digraph arch {
+  rankdir=TB; nodesep=0.28; ranksep=0.5; newrank=true; fontname="Helvetica"; splines=spline;
+  node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=16, margin="0.12,0.07", fillcolor="#E8F0FE", color="#1F4E8C", penwidth=1.4];
+  edge [fontname="Helvetica", fontsize=13, color="#444444", arrowsize=0.8];
+
+  app   [label="Upload\nclient", fillcolor="#F2F2F2", color="#666666"];
+  s3in  [label="S3 raw-image\nbucket", style="rounded,filled,dashed"];
+  sfn   [label="Step Functions\nlaunch / scale EMR", style="rounded,filled,dashed"];
+  emr   [label="EMR, g4dn GPU nodes\nRAPIDS Accelerator", style="rounded,filled,dashed", fillcolor="#FFF4E0", color="#B26A00"];
+
+  subgraph cluster_spark {
+    label="Spark job: implemented and measured in this paper"; labeljust=l; fontsize=15; style="rounded"; color="#1F4E8C"; penwidth=1.6;
+    read  [label="binaryFile read\nencoded bytes"];
+    part  [label="mapInPandas\nload model once,\nbatched YOLO26"];
+    ocr   [label="Crop fields,\nTesseract"];
+    pq    [label="Parquet\none row per field"];
+    agg   [label="Two-phase\naggregation"];
+    read -> part -> ocr -> pq -> agg;
+  }
+
+  glue  [label="AWS Glue", style="rounded,filled,dashed"];
+  rs    [label="Redshift", style="rounded,filled,dashed"];
+  down  [label="KYC / fraud review,\nhuman QA", fillcolor="#F2F2F2", color="#666666"];
+
+  {rank=same; app; s3in; sfn; emr}
+  {rank=same; read; part; ocr; pq; agg}
+  {rank=same; glue; rs; down}
+  app -> s3in [label="1"]; s3in -> sfn [label="2"]; sfn -> emr [label="3"];
+  emr -> read [label="4"]; s3in -> read [label="5", style=dashed];
+  pq -> glue [label="6", style=dashed]; glue -> rs [label="7", style=dashed]; rs -> down [label="8", style=dashed];
+}

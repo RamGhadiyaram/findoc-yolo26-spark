@@ -1,0 +1,46 @@
+{
+  "overall_precision": 0.8878,
+  "overall_recall": 0.87,
+  "pipeline_end_to_end_field_accuracy": 0.8458,
+  "per_class": {
+    "account_number": {
+      "precision": 0.875,
+      "recall": 0.5833,
+      "ocr_exact": 1.0,
+      "n": 60
+    },
+    "amount": {
+      "precision": 0.8056,
+      "recall": 0.9667,
+      "ocr_exact": 1.0,
+      "n": 60
+    },
+    "date": {
+      "precision": 0.9194,
+      "recall": 0.95,
+      "ocr_exact": 1.0,
+      "n": 60
+    },
+    "name": {
+      "precision": 0.9298,
+      "recall": 0.8833,
+      "ocr_exact": 1.0,
+      "n": 60
+    },
+    "signature": {
+      "precision": 0.9206,
+      "recall": 0.9667,
+      "ocr_exact": null,
+      "n": 60
+    }
+  },
+  "duplicate_boxes": 33,
+  "duplicate_mean_conf": 0.668,
+  "top_box_mean_conf": 0.799,
+  "missed_fields": 39,
+  "ocr_errors": [],
+  "fullpage_tesseract_field_capture": 0.9958,
+  "fullpage_tesseract_seconds_per_doc": 0.63,
+  "chosen_conf": 0.45,
+  "val_f1_at_chosen": 0.8837
+}

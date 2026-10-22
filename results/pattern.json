@@ -1,0 +1,51 @@
+{
+  "docs": 48,
+  "partitions": 2,
+  "repeats": 3,
+  "local_cores": 2,
+  "scope": "CPU-only, local[2], real fine-tuned YOLO26n ONNX, detection only",
+  "modes": {
+    "row_udf": {
+      "seconds_mean": 9.39,
+      "seconds_sd": 0.44,
+      "docs_per_second": 5.11,
+      "all_seconds": [
+        9.12,
+        9.91,
+        9.16
+      ],
+      "total_boxes": [
+        300
+      ],
+      "speedup_vs_row_udf": 1.0
+    },
+    "partition_b1": {
+      "seconds_mean": 5.66,
+      "seconds_sd": 0.05,
+      "docs_per_second": 8.485,
+      "all_seconds": [
+        5.67,
+        5.7,
+        5.6
+      ],
+      "total_boxes": [
+        300
+      ],
+      "speedup_vs_row_udf": 1.66
+    },
+    "partition_b16": {
+      "seconds_mean": 5.56,
+      "seconds_sd": 0.11,
+      "docs_per_second": 8.636,
+      "all_seconds": [
+        5.67,
+        5.55,
+        5.45
+      ],
+      "total_boxes": [
+        300
+      ],
+      "speedup_vs_row_udf": 1.69
+    }
+  }
+}

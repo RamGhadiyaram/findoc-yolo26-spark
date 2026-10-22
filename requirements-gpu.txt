@@ -1,0 +1,5 @@
+# GPU extras. Needs an NVIDIA GPU, CUDA 12 driver, and the RAPIDS Accelerator jar
+# for Spark. See docs/REQUIREMENTS.md and docs/AWS_DEPLOYMENT.md.
+-r requirements.txt
+--extra-index-url https://pypi.nvidia.com
+cudf-cu12>=25.2
