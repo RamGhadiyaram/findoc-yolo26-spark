@@ -22,7 +22,7 @@ System packages:
 
 ```bash
 # Debian/Ubuntu
-sudo apt-get install -y openjdk-21-jre-headless tesseract-ocr
+sudo apt-get install -y openjdk-21-jre-headless tesseract-ocr fonts-dejavu-core
 # macOS
 brew install openjdk@21 tesseract
 ```
@@ -64,3 +64,7 @@ See `docs/AWS_DEPLOYMENT.md` for EMR.
 
 The reported run fine-tunes `yolo26n` on CPU. Training `yolo26x` as in the paper
 needs a GPU with roughly 16 GB or more of memory at `--batch 32 --imgsz 640`.
+
+## Fonts (matters for reproducing the synthetic data)
+
+The data generator draws text with the DejaVu fonts (`fonts-dejavu-core`). Without them the generator now stops with an error instead of silently using a different font, which an earlier Colab run showed changes every image and cuts end-to-end accuracy (see CHANGELOG).

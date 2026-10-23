@@ -5,7 +5,7 @@ Ultralytics YOLO26 \cite{jocher2026yolo26} is a natural detector for this role. 
 
 The difficulty is that a model call inside a Spark job looks routine and fails quietly. The RAPIDS Accelerator for Apache Spark \cite{nvidia_udf,nvidia_rapids} accelerates Spark\textquotesingle{}s own SQL and DataFrame plan on GPU. It does not accelerate Python code that loads a model inside a user-defined function, so enabling it does not make model inference fast. The first version of this pipeline contained several such defects, some in the model call pattern, some in data access, and some in the toolchain. We found them only after running the code, which is the reason this paper reports a running system and not a design alone.
 
-This paper builds the pipeline, runs it, measures it, and releases it. Its scope is deliberately narrow. All reported accuracy is on a synthetic form dataset whose labels are exact by construction, all timing is on a two-core CPU, and the AWS EMR and GPU deployment is presented as design, not as measurement.
+This paper builds the pipeline, runs it, measures it, and releases it. Its scope is deliberately narrow. All reported accuracy is on a synthetic form dataset whose labels are exact by construction, timing is on a two-core CPU with one replication on a single GPU, and the AWS EMR and multi-GPU deployment is presented as design, not as measurement.
 
 \section{Contributions}
 \begin{itemize}

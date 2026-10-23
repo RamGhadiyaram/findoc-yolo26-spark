@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Added a Colab GPU notebook (`notebooks/colab_gpu_run.ipynb`, `docs/COLAB.md`). It writes to `results_gpu/` and does not touch the CPU results used in the paper.
+- Added `FINDOC_DEVICE` (default `cpu`) to choose the inference device, and a `RESULTS` variable in the Makefile. CPU behavior is unchanged.
+- First Colab GPU run: detection replicated (class-NMS precision and recall 1.00), but end-to-end text accuracy was 0.717 against 0.971 on CPU. The recorded environment showed the cause: Colab had no DejaVu fonts, so the generator silently fell back to PIL's default font and produced different test images (hash 840f3d... against 225dd7... on the CPU machine). Tesseract was identical (5.3.4) and the GPU was really used (CUDA execution provider confirmed). The generator now raises an error when the fonts are missing, and the notebook installs `fonts-dejavu-core`. The paper reports that run only as a labeled note.
+- Third Colab run (T4, fonts installed): test images byte-identical to the CPU machine (same SHA-256), ONNX Runtime used the CUDA provider. Class-NMS end-to-end 98.3% against 97.1% on CPU, same ordering of variants, same per-partition speedup (2.1x), no inference speedup from the GPU for the nano model. Added as a replication subsection with numbers generated from `results_gpu/`.
+
 ## 0.1.0
 
 First runnable release. Everything below was found by running the code, not by reading it.

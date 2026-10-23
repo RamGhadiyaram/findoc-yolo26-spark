@@ -18,6 +18,8 @@ import random
 from dataclasses import dataclass
 from pathlib import Path
 
+import os
+
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
@@ -44,7 +46,19 @@ def _font(size: int, rng: random.Random) -> ImageFont.FreeTypeFont:
             p = Path(d) / name
             if p.exists():
                 return ImageFont.truetype(str(p), size)
+    if os.environ.get("FINDOC_ALLOW_DEFAULT_FONT") != "1":
+        raise RuntimeError(
+            "No DejaVu font found, so the generator would silently fall back to PIL's default font and "
+            "produce different images from the published run. Install fonts-dejavu-core "
+            "(apt-get install fonts-dejavu-core) or set FINDOC_ALLOW_DEFAULT_FONT=1 to accept different data."
+        )
     return ImageFont.load_default()
+
+
+def fonts_available() -> list[str]:
+    """Font files the generator can actually find here. Empty means PIL's default font is used,
+    which changes every image. Recorded with each run so results from different machines can be compared."""
+    return sorted(str(Path(d) / n) for d in _FONT_DIRS for n in _FONT_FILES if (Path(d) / n).exists())
 
 
 def _value_for(cls: str, rng: random.Random) -> str:

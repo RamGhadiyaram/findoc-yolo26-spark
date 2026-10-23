@@ -68,9 +68,9 @@ def detect_partition(batches):
 \section{Experimental Setup}\label{sec:setup}
 \textbf{Data.} A deterministic generator renders account forms at 960 by 640 pixels with five field classes: account number, date, amount, name, and signature. Layout, font, field order, noise, and blur vary per document. Every box and every text string is known exactly. The split is 240 training, 60 validation, and 60 test documents, with disjoint random seeds. The test split holds 300 fields, of which 240 carry text.
 
-\textbf{Model.} YOLO26n fine-tuned from the COCO checkpoint for \valTrainEpochs{} epochs at 640 pixels, batch size 8, AdamW, on CPU, in about \valTrainMinutes{} minutes. We use the nano model because it is the one that trains on this hardware. The paper\textquotesingle{}s design uses the largest model on GPUs, and those results would differ.
+\textbf{Model.} YOLO26n fine-tuned from the COCO checkpoint for \valTrainEpochs{} epochs at 640 pixels, batch size 8, AdamW, on CPU in about \valTrainMinutes{} minutes, and once more on a GPU in about \valGpuTrainSeconds{} seconds. We use the nano model because it is the one that trains on the CPU machine. The paper\textquotesingle{}s design uses the largest model on GPUs, and those results would differ.
 
-\textbf{Hardware and software.} Two virtual CPU cores, 7 GB of memory, no GPU. Python 3.13, Spark 4.0.1, OpenJDK 21, Ultralytics 8.4, ONNX Runtime 1.29, Tesseract 5.3.4.
+\textbf{Hardware and software.} Primary runs: two virtual CPU cores, 7 GB of memory. Replication: one \valGpuName{} GPU in Google Colab. Python 3.13, Spark 4.0.1, OpenJDK 21, Ultralytics 8.4, ONNX Runtime 1.29, Tesseract 5.3.4.
 
 \textbf{Metrics.} A detection is correct if its class matches and its IoU with an unmatched ground-truth box is at least 0.5. We report precision and recall. End-to-end field accuracy is the share of text fields that are both localized and read with an exact string match after whitespace is removed. The baseline is Tesseract run on the full page. We count a field as captured if its exact string appears anywhere in the page text. That rule is lenient, because the baseline is never required to say which field a string belongs to, so it is an upper bound on what page-level OCR delivers and is not a like-for-like extractor.
 

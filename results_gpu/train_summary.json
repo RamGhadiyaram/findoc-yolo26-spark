@@ -1,0 +1,15 @@
+{
+  "weights": "/content/findoc/work/runs/synth/weights/best.pt",
+  "onnx": "/content/findoc/work/runs/synth/weights/best.onnx",
+  "train_seconds": 117.2,
+  "epochs": 15,
+  "val_map50": 0.995,
+  "val_map50_95": 0.9283,
+  "per_class_map50": {
+    "account_number": 0.995,
+    "date": 0.995,
+    "amount": 0.995,
+    "name": 0.995,
+    "signature": 0.995
+  }
+}

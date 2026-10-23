@@ -32,6 +32,7 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import udf
 from pyspark.sql.types import LongType, StringType, StructField, StructType
 
+DEVICE = int(os.environ["FINDOC_DEVICE"]) if os.environ.get("FINDOC_DEVICE", "cpu").isdigit() else os.environ.get("FINDOC_DEVICE", "cpu")
 OUT_SCHEMA = StructType([StructField("path", StringType()), StructField("n_boxes", LongType())])
 
 
@@ -46,7 +47,7 @@ def make_row_udf(model_basename: str):
 
         model = YOLO(SparkFiles.get(model_basename), task="detect")
         im = _decode(raw)
-        return len(model(im, device="cpu", verbose=False)[0].boxes) if im is not None else 0
+        return len(model(im, device=DEVICE, verbose=False)[0].boxes) if im is not None else 0
 
     return row_wise
 
@@ -63,7 +64,7 @@ def make_partition_fn(model_basename: str):
                 if im is not None:
                     imgs.append(im)
                     paths.append(p)
-            counts = [len(r.boxes) for r in model(imgs, device="cpu", verbose=False)] if imgs else []
+            counts = [len(r.boxes) for r in model(imgs, device=DEVICE, verbose=False)] if imgs else []
             yield pd.DataFrame({"path": paths, "n_boxes": counts})
 
     return detect
@@ -110,7 +111,7 @@ def main() -> None:
     a = ap.parse_args()
 
     result = {"docs": a.docs, "partitions": a.partitions, "repeats": a.repeats, "local_cores": 2,
-              "scope": "CPU-only, local[2], real fine-tuned YOLO26n ONNX, detection only", "modes": {}}
+              "device": str(DEVICE), "scope": f"device={DEVICE}, local[2], real fine-tuned YOLO26n ONNX, detection only", "modes": {}}
     for mode in ["row_udf", "partition_b1", "partition_b16"]:
         run_once(mode, a.images, a.model, a.docs, a.partitions)  # warm-up, discarded
         times, boxes = [], set()

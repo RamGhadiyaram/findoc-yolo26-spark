@@ -1,0 +1,36 @@
+{
+  "docs": 60,
+  "fields": 291,
+  "seconds": 39.51,
+  "docs_per_second": 1.518,
+  "cudf": true,
+  "conf": 0.4,
+  "nms_iou": 0.0,
+  "per_class": [
+    {
+      "field_class": "account_number",
+      "n": 27,
+      "mean_confidence": 0.5091054726530004
+    },
+    {
+      "field_class": "amount",
+      "n": 75,
+      "mean_confidence": 0.7428957104682923
+    },
+    {
+      "field_class": "date",
+      "n": 57,
+      "mean_confidence": 0.7095981846775925
+    },
+    {
+      "field_class": "name",
+      "n": 63,
+      "mean_confidence": 0.5044750013048687
+    },
+    {
+      "field_class": "signature",
+      "n": 69,
+      "mean_confidence": 0.7927347361177638
+    }
+  ]
+}

@@ -83,13 +83,17 @@ def build_spark(master: str = "local[*]", gpu: bool = False, arrow_batch: int = 
 
 
 def _task_device() -> str | int:
-    """GPU index Spark assigned to this task, else CPU."""
+    """GPU index Spark assigned to this task, else FINDOC_DEVICE (default "cpu").
+
+    FINDOC_DEVICE=0 runs inference on GPU 0 without Spark GPU scheduling, which is how the
+    single-GPU Colab run works (see docs/COLAB.md)."""
     ctx = TaskContext.get()
     if ctx is not None:
         gpus = ctx.resources().get("gpu")
         if gpus is not None and gpus.addresses:
             return int(gpus.addresses[0])
-    return "cpu"
+    dev = os.environ.get("FINDOC_DEVICE", "cpu")
+    return int(dev) if dev.isdigit() else dev
 
 
 def class_nms(cands: list[tuple], iou_thr: float) -> list[tuple]:
