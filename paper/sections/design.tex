@@ -4,7 +4,7 @@ Fig.~\ref{fig:arch} shows the full ingestion-to-analytics design. Solid boxes in
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.98\textwidth]{figures/architecture.png}
-\caption{Target architecture. The Spark job (solid) is implemented and measured here on a two-core CPU. Dashed components, including EMR with GPU nodes, Step Functions, Glue, and Redshift, are design only and were not exercised.}
+\caption{Target architecture. The Spark job (solid) is implemented and measured here on a two-core CPU, with one repeat on a single GPU. Dashed components, including EMR with GPU nodes, Step Functions, Glue, and Redshift, are design only and were not exercised.}
 \label{fig:arch}
 \end{figure*}
 
@@ -12,7 +12,7 @@ Fig.~\ref{fig:arch} shows the full ingestion-to-analytics design. Solid boxes in
 The job reads images with Spark\textquotesingle{}s \texttt{binaryFile} source, which returns the encoded file bytes unchanged. A \texttt{mapInPandas} function then runs once per partition. It loads the model once, decodes each Arrow batch of images, makes one batched detector call, crops every detected field from the original image, and runs Tesseract in single-line mode on each crop. Signature regions are detected but not read. Output is long format, one row per detected field, written as Parquet. A final step computes per-class mean confidence with a two-phase aggregation: each partition emits a partial sum and count, and Spark performs the final reduce. That step uses cuDF when RAPIDS is installed and pandas otherwise.
 
 \subsection{Target deployment on AWS}
-An upload to S3 raises an event, AWS Step Functions \cite{stepfunctions} launches or resizes an Amazon EMR \cite{emr} cluster, the Spark job runs, and structured output reaches Redshift through Glue. On a GPU cluster the detector would run on the device that Spark assigns to each task, using Spark\textquotesingle{}s custom resource scheduling \cite{spark_resources}, with one GPU per task slot. The pipeline module reads that device index from the task context and sets the corresponding Spark configuration when started with \texttt{--gpu}. We could not exercise this path, because no GPU was available, so it is untested.
+An upload to S3 raises an event, AWS Step Functions \cite{stepfunctions} launches or resizes an Amazon EMR \cite{emr} cluster, the Spark job runs, and structured output reaches Redshift through Glue. On a GPU cluster the detector would run on the device that Spark assigns to each task, using Spark\textquotesingle{}s custom resource scheduling \cite{spark_resources}, with one GPU per task slot. The pipeline module reads that device index from the task context and sets the corresponding Spark configuration when started with \texttt{--gpu}. We ran a GPU only in local mode, by naming the device in an environment variable (Section~\ref{sec:gpu}). The Spark GPU-scheduling path started with \texttt{--gpu} was not exercised, so it is untested.
 
 \subsection{Where this design applies}
 The design targets batch and micro-batch workloads, such as an overnight queue of scanned documents or a stream drained every few minutes. It does not target sub-second per-request latency. A cold EMR cluster adds a start-up cost that we did not measure and that no steady-state throughput figure includes. Interactive use would call for a warm cluster, EMR Serverless, or a plain model server in front of the same detector and OCR code.
@@ -35,7 +35,7 @@ Re-opening a path with \texttt{cv2.imread} & An \texttt{s3://} URI returns \text
 Model constructed inside a row-wise UDF & The model loads once per row. Cost measured in Section~\ref{sec:results}. & Load once per partition inside \texttt{mapInPandas}. \\
 Per-image Python loop around the model call & Inference is one image at a time. & One batched call per Arrow batch, with a dynamic-batch ONNX export. \\
 Manual resize to 640 by 640 & Distorts non-square pages, and every box then needs mapping back to page coordinates. & Pass the original image. Ultralytics letterboxes internally and returns boxes in original pixels. \\
-Hard-coded \texttt{device=0} with two concurrent GPU tasks & Two model copies can land on one device. \textit{Untested, no GPU available.} & Read the device from the task context and schedule one GPU per task. \\
+Hard-coded \texttt{device=0} with two concurrent GPU tasks & Two model copies can land on one device. \textit{Not exercised under Spark GPU scheduling.} & Read the device from the task context and schedule one GPU per task. \\
 cuDF used to count a substring in one JSON string & Too small an operation to benefit from a GPU, and the key it searched for did not match the output schema. & Per-partition partial sums and counts by class, reduced by Spark. \\
 \bottomrule
 \end{tabular}
@@ -68,9 +68,9 @@ def detect_partition(batches):
 \section{Experimental Setup}\label{sec:setup}
 \textbf{Data.} A deterministic generator renders account forms at 960 by 640 pixels with five field classes: account number, date, amount, name, and signature. Layout, font, field order, noise, and blur vary per document. Every box and every text string is known exactly. The split is 240 training, 60 validation, and 60 test documents, with disjoint random seeds. The test split holds 300 fields, of which 240 carry text.
 
-\textbf{Model.} YOLO26n fine-tuned from the COCO checkpoint for \valTrainEpochs{} epochs at 640 pixels, batch size 8, AdamW, on CPU in about \valTrainMinutes{} minutes, and once more on a GPU in about \valGpuTrainSeconds{} seconds. We use the nano model because it is the one that trains on the CPU machine. The paper\textquotesingle{}s design uses the largest model on GPUs, and those results would differ.
+\textbf{Model.} YOLO26n fine-tuned from the COCO checkpoint for \valTrainEpochs{} epochs at 640 pixels, batch size 8, AdamW, on CPU in about \valTrainMinutes{} minutes, and once more on a GPU in about \valGpuTrainSeconds{} seconds. We use the nano model because it is the one that trains on the CPU machine. The released training script defaults to the largest model, and results with it would differ.
 
-\textbf{Hardware and software.} Primary runs: two virtual CPU cores, 7 GB of memory. Replication: one \valGpuName{} GPU in Google Colab. Python 3.13, Spark 4.0.1, OpenJDK 21, Ultralytics 8.4, ONNX Runtime 1.29, Tesseract 5.3.4.
+\textbf{Hardware and software.} Primary runs: two virtual CPU cores, 7 GB of memory. Replication: one \valGpuName{} GPU in Google Colab. CPU machine: Python 3.13, Spark 4.0.1, OpenJDK 21, Ultralytics 8.4, ONNX Runtime 1.29, Tesseract 5.3.4. Colab: Spark 4.0.4, ONNX Runtime GPU 1.31, Tesseract 5.3.4. Class-wise suppression (IoU 0.5) before OCR is an option of the pipeline and is off by default.
 
 \textbf{Metrics.} A detection is correct if its class matches and its IoU with an unmatched ground-truth box is at least 0.5. We report precision and recall. End-to-end field accuracy is the share of text fields that are both localized and read with an exact string match after whitespace is removed. The baseline is Tesseract run on the full page. We count a field as captured if its exact string appears anywhere in the page text. That rule is lenient, because the baseline is never required to say which field a string belongs to, so it is an upper bound on what page-level OCR delivers and is not a like-for-like extractor.
 

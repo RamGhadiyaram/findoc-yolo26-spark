@@ -9,14 +9,14 @@ This paper builds the pipeline, runs it, measures it, and releases it. Its scope
 
 \section{Contributions}
 \begin{itemize}
-\item A complete open implementation of field detection, field-level OCR, and aggregation as one Spark job, with unit and end-to-end tests and a single command that reproduces every number in this paper.
+\item A complete open implementation of field detection, field-level OCR, and aggregation as one Spark job, with unit and end-to-end tests. One command reproduces the CPU results, and a notebook repeats the study on a GPU.
 \item A catalog of integration defects, each checked against a running system, and the corrected partition-level inference pattern that resolves them (Section~\ref{sec:impl}).
 \item A controlled evaluation on a dataset with exact ground truth: detection precision and recall, end-to-end field accuracy against a full-page Tesseract baseline, and a measured comparison of three ways to run the same model inside Spark (Section~\ref{sec:results}).
 \item A deployment design for AWS EMR with RAPIDS, kept separate from what was measured, including when the batch design is and is not appropriate (Section~\ref{sec:design}).
 \end{itemize}
 
 \section{Related Work}
-\textbf{Detection.} Single-network detection was introduced by Redmon et al.\ \cite{redmon2016}. YOLOv9 added programmable gradient information \cite{wang2024yolov9}, and YOLOv10 was the first in the line to remove non-maximum suppression \cite{wang2024yolov10}. YOLO26 keeps native end-to-end inference, removes Distribution Focal Loss, and is the current Ultralytics release \cite{jocher2026yolo26}. DocLayout-YOLO adapts the family to document layout analysis \cite{zhao2024doclayout}. We use YOLO26 because it is the maintained production model and its NMS-free head simplifies the serving path. We do not claim it is the best detector for financial fields, and we do not compare against other detectors.
+\textbf{Detection.} Single-network detection was introduced by Redmon et al.\ \cite{redmon2016}. YOLOv9 added programmable gradient information \cite{wang2024yolov9}, and YOLOv10 was the first in the line to remove non-maximum suppression \cite{wang2024yolov10}. YOLO26 keeps native end-to-end inference, removes Distribution Focal Loss, and is a recent Ultralytics release \cite{jocher2026yolo26}. DocLayout-YOLO adapts the family to document layout analysis \cite{zhao2024doclayout}. We use YOLO26 because it is the maintained production model and its NMS-free head simplifies the serving path. We do not claim it is the best detector for financial fields, and we do not compare against other detectors.
 
 \textbf{OCR and document understanding.} Tesseract \cite{smith2007} remains a common open-source engine, and its accuracy varies widely with document type and preprocessing \cite{thammarak2022,reisswig2019}. Managed services such as Amazon Textract \cite{textract} are an obvious comparison, which we do not make because it needs an AWS account and real documents. Layout-aware transformers such as LayoutLMv3 \cite{huang2022layoutlmv3} and OCR-free models such as Donut \cite{kim2022donut} are stronger, heavier alternatives that solve a broader problem. Our baseline is Tesseract alone, which makes the comparison one of pipeline structure, not one against the state of the art.
 
