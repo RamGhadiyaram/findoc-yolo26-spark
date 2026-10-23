@@ -1,0 +1,67 @@
+{
+  "overall_precision": 0.9967,
+  "overall_recall": 1.0,
+  "pipeline_end_to_end_field_accuracy": 0.9833,
+  "per_class": {
+    "account_number": {
+      "precision": 0.9836,
+      "recall": 1.0,
+      "ocr_exact": 0.95,
+      "n": 60
+    },
+    "amount": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "ocr_exact": 0.9833,
+      "n": 60
+    },
+    "date": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "ocr_exact": 1.0,
+      "n": 60
+    },
+    "name": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "ocr_exact": 1.0,
+      "n": 60
+    },
+    "signature": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "ocr_exact": null,
+      "n": 60
+    }
+  },
+  "duplicate_boxes": 0,
+  "duplicate_mean_conf": null,
+  "top_box_mean_conf": 0.635,
+  "missed_fields": 0,
+  "ocr_errors": [
+    {
+      "cls": "account_number",
+      "truth": "5055730749",
+      "read": "5055730746"
+    },
+    {
+      "cls": "account_number",
+      "truth": "7248739182",
+      "read": "724873918:"
+    },
+    {
+      "cls": "account_number",
+      "truth": "1368033271",
+      "read": "136803327-"
+    },
+    {
+      "cls": "amount",
+      "truth": "$55,151.32",
+      "read": "$55 15132"
+    }
+  ],
+  "fullpage_tesseract_field_capture": 0.9958,
+  "fullpage_tesseract_seconds_per_doc": 0.5,
+  "chosen_conf": 0.1,
+  "val_f1_at_chosen": 0.9983
+}

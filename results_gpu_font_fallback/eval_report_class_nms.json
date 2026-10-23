@@ -1,0 +1,387 @@
+{
+  "overall_precision": 1.0,
+  "overall_recall": 1.0,
+  "pipeline_end_to_end_field_accuracy": 0.7167,
+  "per_class": {
+    "account_number": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "ocr_exact": 0.85,
+      "n": 60
+    },
+    "amount": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "ocr_exact": 0.7167,
+      "n": 60
+    },
+    "date": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "ocr_exact": 0.85,
+      "n": 60
+    },
+    "name": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "ocr_exact": 0.45,
+      "n": 60
+    },
+    "signature": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "ocr_exact": null,
+      "n": 60
+    }
+  },
+  "duplicate_boxes": 0,
+  "duplicate_mean_conf": null,
+  "top_box_mean_conf": 0.748,
+  "missed_fields": 0,
+  "ocr_errors": [
+    {
+      "cls": "amount",
+      "truth": "$29,421.91",
+      "read": "$29.42191"
+    },
+    {
+      "cls": "date",
+      "truth": "10/14/2020",
+      "read": "10/14/2020,"
+    },
+    {
+      "cls": "name",
+      "truth": "Maria Rossi",
+      "read": "\u2018Maria Rossi"
+    },
+    {
+      "cls": "name",
+      "truth": "Aisha Silva",
+      "read": "\u2018Aisha Silva,"
+    },
+    {
+      "cls": "name",
+      "truth": "Lucia Silva",
+      "read": "\u2018Lucia Silva,"
+    },
+    {
+      "cls": "name",
+      "truth": "Lucia Kim",
+      "read": "\u2018Lucia Kim."
+    },
+    {
+      "cls": "amount",
+      "truth": "$14,452.62",
+      "read": "$14.45262"
+    },
+    {
+      "cls": "account_number",
+      "truth": "5635488040",
+      "read": "\u20185635488040"
+    },
+    {
+      "cls": "amount",
+      "truth": "$1,510.35",
+      "read": "$1510.35"
+    },
+    {
+      "cls": "date",
+      "truth": "11/17/2021",
+      "read": "1917/2021"
+    },
+    {
+      "cls": "amount",
+      "truth": "$32,872.72",
+      "read": "$32.872.72"
+    },
+    {
+      "cls": "date",
+      "truth": "12/19/2020",
+      "read": "12/19/2020,"
+    },
+    {
+      "cls": "amount",
+      "truth": "$46,555.64",
+      "read": "$46,555.64,"
+    },
+    {
+      "cls": "date",
+      "truth": "10/11/2026",
+      "read": "10/11/2026,"
+    },
+    {
+      "cls": "amount",
+      "truth": "$41,820.82",
+      "read": "$41,82082"
+    },
+    {
+      "cls": "name",
+      "truth": "Chen Patel",
+      "read": "\u2018Chen Patel"
+    },
+    {
+      "cls": "account_number",
+      "truth": "9035164857",
+      "read": "\u20189035164857"
+    },
+    {
+      "cls": "amount",
+      "truth": "$72,844.32",
+      "read": "$7284432"
+    },
+    {
+      "cls": "name",
+      "truth": "Samir Hughes",
+      "read": "\u2018Samir Hughes"
+    },
+    {
+      "cls": "date",
+      "truth": "11/18/2019",
+      "read": "11/18/2019,"
+    },
+    {
+      "cls": "account_number",
+      "truth": "5882478511",
+      "read": "6882478511"
+    },
+    {
+      "cls": "name",
+      "truth": "Maria Brandt",
+      "read": "\u2018Maria Brandt"
+    },
+    {
+      "cls": "account_number",
+      "truth": "0031945048",
+      "read": "(0031945048"
+    },
+    {
+      "cls": "date",
+      "truth": "03/26/2022",
+      "read": "03/26/2022,"
+    },
+    {
+      "cls": "name",
+      "truth": "Chen Nguyen",
+      "read": "Chen Nguyen."
+    },
+    {
+      "cls": "amount",
+      "truth": "$24,973.11",
+      "read": "$24973.11"
+    },
+    {
+      "cls": "name",
+      "truth": "Tomas Patel",
+      "read": "Tomas Patel."
+    },
+    {
+      "cls": "name",
+      "truth": "Samir Kim",
+      "read": "\u2018Samir Kim"
+    },
+    {
+      "cls": "amount",
+      "truth": "$76,577.14",
+      "read": "$76577.14"
+    },
+    {
+      "cls": "account_number",
+      "truth": "5575722545",
+      "read": "6575722545"
+    },
+    {
+      "cls": "date",
+      "truth": "12/21/2023",
+      "read": "12/21/2023,"
+    },
+    {
+      "cls": "name",
+      "truth": "Chen Kim",
+      "read": "\u2018Chen Kim"
+    },
+    {
+      "cls": "name",
+      "truth": "Aisha Nguyen",
+      "read": "\u2018Aisha Nguyen."
+    },
+    {
+      "cls": "amount",
+      "truth": "$88,243.54",
+      "read": "$88,243.54."
+    },
+    {
+      "cls": "name",
+      "truth": "Lucia Patel",
+      "read": "\u2018Lucia Patel"
+    },
+    {
+      "cls": "name",
+      "truth": "Chen Nguyen",
+      "read": "Chen Nguyen:"
+    },
+    {
+      "cls": "amount",
+      "truth": "$7,854.31",
+      "read": "$7.85431"
+    },
+    {
+      "cls": "name",
+      "truth": "Samir Okafor",
+      "read": "\u2018Samir Okafor"
+    },
+    {
+      "cls": "name",
+      "truth": "Maria Hughes",
+      "read": "\u2018Maria Hughes"
+    },
+    {
+      "cls": "amount",
+      "truth": "$15,546.58",
+      "read": "$15,548.58"
+    },
+    {
+      "cls": "account_number",
+      "truth": "3914606658",
+      "read": "3914806858"
+    },
+    {
+      "cls": "name",
+      "truth": "Chen Rossi",
+      "read": "\u2018Chen Rossi."
+    },
+    {
+      "cls": "account_number",
+      "truth": "4600603987",
+      "read": "4800603987"
+    },
+    {
+      "cls": "name",
+      "truth": "Chen Kim",
+      "read": "\u2018Chen Kim"
+    },
+    {
+      "cls": "amount",
+      "truth": "$7,794.75",
+      "read": "$7.79475"
+    },
+    {
+      "cls": "name",
+      "truth": "Aisha Patel",
+      "read": "\u2018Aisha Patel"
+    },
+    {
+      "cls": "name",
+      "truth": "Chen Brandt",
+      "read": "Chen Brandt."
+    },
+    {
+      "cls": "name",
+      "truth": "Tomas Nguyen",
+      "read": "Tomas Nguyen,"
+    },
+    {
+      "cls": "name",
+      "truth": "Samir Silva",
+      "read": "\u2018Samir Silva"
+    },
+    {
+      "cls": "name",
+      "truth": "Tomas Brandt",
+      "read": "Tomas Brandt."
+    },
+    {
+      "cls": "name",
+      "truth": "Aisha Nguyen",
+      "read": "\u2018Aisha Nguyen:"
+    },
+    {
+      "cls": "name",
+      "truth": "Aisha Nguyen",
+      "read": "\u2018Aisha Nguyen"
+    },
+    {
+      "cls": "amount",
+      "truth": "$42,654.53",
+      "read": "$42,65453"
+    },
+    {
+      "cls": "amount",
+      "truth": "$54,833.11",
+      "read": "$54833.11"
+    },
+    {
+      "cls": "name",
+      "truth": "Aisha Brandt",
+      "read": "\u2018Aisha Brandt."
+    },
+    {
+      "cls": "name",
+      "truth": "Aisha Silva",
+      "read": "\u2018Aisha Silva"
+    },
+    {
+      "cls": "account_number",
+      "truth": "4630611871",
+      "read": "4830611871"
+    },
+    {
+      "cls": "amount",
+      "truth": "$64,944.78",
+      "read": "96494478"
+    },
+    {
+      "cls": "account_number",
+      "truth": "1173309182",
+      "read": "1173309182,"
+    },
+    {
+      "cls": "name",
+      "truth": "Olga Kim",
+      "read": "\u2018Olga Kim."
+    },
+    {
+      "cls": "name",
+      "truth": "Samir Nguyen",
+      "read": "\u2018Samir Nguyen"
+    },
+    {
+      "cls": "name",
+      "truth": "Chen Nguyen",
+      "read": "Chen Nguyen:"
+    },
+    {
+      "cls": "name",
+      "truth": "Chen Brandt",
+      "read": "Chen Brandt."
+    },
+    {
+      "cls": "date",
+      "truth": "10/27/2019",
+      "read": "10/27/2019,"
+    },
+    {
+      "cls": "name",
+      "truth": "Aisha Rossi",
+      "read": "\u2018Aisha Rossi"
+    },
+    {
+      "cls": "amount",
+      "truth": "$94,737.95",
+      "read": "$94737.95"
+    },
+    {
+      "cls": "date",
+      "truth": "04/07/2022",
+      "read": "04/07/2022,"
+    },
+    {
+      "cls": "name",
+      "truth": "Maria Patel",
+      "read": "\u2018Maria Patel"
+    }
+  ],
+  "fullpage_tesseract_field_capture": 0.2875,
+  "fullpage_tesseract_seconds_per_doc": 0.373,
+  "chosen_conf": 0.15,
+  "val_f1_at_chosen": 1.0
+}

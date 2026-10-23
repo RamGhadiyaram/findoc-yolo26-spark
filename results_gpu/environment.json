@@ -1,0 +1,38 @@
+{
+  "python": "3.13.15",
+  "platform": "Linux-6.6.122+-x86_64-with-glibc2.39",
+  "tesseract": "tesseract 5.3.4",
+  "java": "[0.001s][warning][os,container] Cgroup memory controller path at '/sys/fs/cgroup' seems to have moved to '/../../jupyter-children', detected limits won't be accurate",
+  "gpu": "Tesla T4, 580.82.07",
+  "packages": {
+    "ultralytics": "8.4.184",
+    "torch": "2.11.0+cu130",
+    "onnxruntime": "not installed",
+    "onnxruntime-gpu": "1.31.0",
+    "pyspark": "4.0.4",
+    "pytesseract": "0.3.13",
+    "opencv-python-headless": "5.0.0.93",
+    "numpy": "2.1.3",
+    "pillow": "11.3.0"
+  },
+  "fonts_found": [
+    "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+    "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf",
+    "/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf"
+  ],
+  "test_images": 60,
+  "test_images_sha256": "225dd787d8228ec95434771a7af92d89557b689a3b0aa89bbc937ecc6ad3113c",
+  "onnx_session_providers": [
+    "CUDAExecutionProvider",
+    "CPUExecutionProvider"
+  ],
+  "onnx_available_providers": [
+    "TensorrtExecutionProvider",
+    "CUDAExecutionProvider",
+    "CPUExecutionProvider"
+  ],
+  "ultralytics_session_providers": [
+    "CUDAExecutionProvider",
+    "CPUExecutionProvider"
+  ]
+}
