@@ -21,8 +21,8 @@ Steps: check the GPU, install system packages, clone the repo, install Python de
 import torch
 assert torch.cuda.is_available(), "No GPU. Runtime > Change runtime type > T4 GPU, then rerun."
 print("torch", torch.__version__, "| cuda", torch.version.cuda, "|", torch.cuda.get_device_name(0))"""),
-    C("""# 2. System packages: Java for Spark, Tesseract for OCR
-!apt-get -qq update && apt-get -qq install -y openjdk-17-jdk-headless tesseract-ocr > /dev/null
+    C("""# 2. System packages: Java for Spark, Tesseract for OCR, DejaVu fonts (the data generator needs them)
+!apt-get -qq update && apt-get -qq install -y openjdk-17-jdk-headless tesseract-ocr fonts-dejavu-core > /dev/null
 !java -version 2>&1 | head -1
 !tesseract --version 2>&1 | head -1"""),
     C("""# 3. Get the code. Change REPO if you use a fork or an anonymized mirror.

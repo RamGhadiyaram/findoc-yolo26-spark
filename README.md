@@ -20,7 +20,7 @@ Details and GPU notes: [`docs/REQUIREMENTS.md`](docs/REQUIREMENTS.md).
 ## Quick start
 
 ```bash
-sudo apt-get install -y openjdk-21-jre-headless tesseract-ocr   # macOS: brew install openjdk@21 tesseract
+sudo apt-get install -y openjdk-21-jre-headless tesseract-ocr fonts-dejavu-core   # macOS: brew install openjdk@21 tesseract
 python -m venv .venv && source .venv/bin/activate
 pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu   # optional, avoids a CUDA download
 make install

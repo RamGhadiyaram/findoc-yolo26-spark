@@ -43,3 +43,16 @@ def test_class_nms_suppresses_same_class_duplicates_only():
     cands = [("a", .9, 0, 0, 10, 10), ("a", .5, 1, 1, 10, 10), ("b", .6, 0, 0, 10, 10), ("a", .4, 50, 50, 60, 60)]
     kept = class_nms(cands, 0.5)
     assert [(c[0], c[1]) for c in kept] == [("a", .9), ("b", .6), ("a", .4)]
+
+
+def test_missing_fonts_fail_loudly(monkeypatch):
+    import random
+
+    import pytest
+
+    monkeypatch.setattr(synth, "_FONT_DIRS", ["/nonexistent"])
+    monkeypatch.delenv("FINDOC_ALLOW_DEFAULT_FONT", raising=False)
+    with pytest.raises(RuntimeError, match="fonts-dejavu-core"):
+        synth._font(20, random.Random(0))
+    monkeypatch.setenv("FINDOC_ALLOW_DEFAULT_FONT", "1")
+    assert synth._font(20, random.Random(0)) is not None
