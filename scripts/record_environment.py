@@ -14,6 +14,15 @@ from importlib import metadata
 from pathlib import Path
 
 
+def java_version() -> str:
+    try:
+        r = subprocess.run(["java", "-version"], capture_output=True, text=True, timeout=30)
+        lines = [ln for ln in (r.stdout + r.stderr).splitlines() if "version" in ln and "warning" not in ln]
+        return lines[0] if lines else "unavailable"
+    except Exception as e:  # noqa: BLE001
+        return f"unavailable ({type(e).__name__})"
+
+
 def sh(cmd: list[str]) -> str:
     try:
         return (lambda r: (r.stdout + r.stderr).strip().splitlines()[0])(subprocess.run(cmd, capture_output=True, text=True, timeout=30))
@@ -37,7 +46,7 @@ def main(data: str, model: str, out: str) -> dict:
         h.update(p.read_bytes())
     info = {
         "python": sys.version.split()[0], "platform": platform.platform(),
-        "tesseract": sh(["tesseract", "--version"]), "java": sh(["java", "-version"]),
+        "tesseract": sh(["tesseract", "--version"]), "java": java_version(),
         "gpu": sh(["nvidia-smi", "--query-gpu=name,driver_version", "--format=csv,noheader"]),
         "packages": {p: ver(p) for p in ["ultralytics", "torch", "onnxruntime", "onnxruntime-gpu", "pyspark", "pytesseract", "opencv-python-headless", "numpy", "pillow"]},
         "fonts_found": fonts_available(),
