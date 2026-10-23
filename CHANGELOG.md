@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- README rewritten: roles of YOLO26, Tesseract and Spark, what the paper claims, results for CPU and GPU, and a tested command for running on your own images. Paper: removed stale "no GPU" statements, corrected the generator description (one randomized generator, not five templates), and narrowed the reproduction claim to the CPU results.
 - Added a Colab GPU notebook (`notebooks/colab_gpu_run.ipynb`, `docs/COLAB.md`). It writes to `results_gpu/` and does not touch the CPU results used in the paper.
 - Added `FINDOC_DEVICE` (default `cpu`) to choose the inference device, and a `RESULTS` variable in the Makefile. CPU behavior is unchanged.
 - First Colab GPU run: detection replicated (class-NMS precision and recall 1.00), but end-to-end text accuracy was 0.717 against 0.971 on CPU. The recorded environment showed the cause: Colab had no DejaVu fonts, so the generator silently fell back to PIL's default font and produced different test images (hash 840f3d... against 225dd7... on the CPU machine). Tesseract was identical (5.3.4) and the GPU was really used (CUDA execution provider confirmed). The generator now raises an error when the fonts are missing, and the notebook installs `fonts-dejavu-core`. The paper reports that run only as a labeled note.
