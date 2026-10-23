@@ -49,6 +49,8 @@ MAKE = "make DEVICE=0 RESULTS=results_gpu"
 !{MAKE} data"""),
     C("""# 6. Fine-tune YOLO26n for 15 epochs (same settings as the CPU run) and export ONNX
 !{MAKE} train"""),
+    C("""# 6b. Record the environment (versions, fonts, GPU, ONNX provider actually used, hash of the test images)
+!python scripts/record_environment.py work/data work/runs/synth/weights/best.onnx results_gpu/environment.json"""),
     C("""# 7. Evaluation protocol: confidence chosen on validation, test scored once
 !{MAKE} protocol"""),
     C("""# 8. Spark inference-pattern benchmark (row-wise UDF vs per-partition), now on GPU

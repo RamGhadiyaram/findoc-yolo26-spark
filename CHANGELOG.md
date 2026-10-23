@@ -4,7 +4,7 @@
 
 - Added a Colab GPU notebook (`notebooks/colab_gpu_run.ipynb`, `docs/COLAB.md`). It writes to `results_gpu/` and does not touch the CPU results used in the paper.
 - Added `FINDOC_DEVICE` (default `cpu`) to choose the inference device, and a `RESULTS` variable in the Makefile. CPU behavior is unchanged.
-- The GPU notebook has not been run yet. Nothing in the paper claims a GPU measurement.
+- First Colab GPU run: detection replicated (class-NMS precision and recall 1.00), but end-to-end text accuracy was 0.717 against 0.971 on CPU. The OCR errors are stray quote marks and trailing commas around the crop, which points at a different Tesseract build or fonts on Colab, not at the detector. The notebook now records versions, fonts, the ONNX provider actually used and a hash of the test images (`results_gpu/environment.json`) so the cause can be confirmed. The paper does not yet cite GPU numbers.
 
 ## 0.1.0
 
