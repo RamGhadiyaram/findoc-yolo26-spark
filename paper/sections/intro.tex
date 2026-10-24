@@ -1,5 +1,5 @@
 \section{Introduction}
-Financial institutions ingest checks, identification forms, and statements as images, and downstream systems need to know which string is the account number, which is the date, and which is the amount. Page-level OCR returns text but not that mapping, and its accuracy is not a fixed number: independent studies report Tesseract anywhere from about 47 percent to over 92 percent depending on document type, resolution, and preprocessing \cite{thammarak2022,reisswig2019}. A detect-then-read design addresses both problems. An object detector localizes each field, and OCR runs only on the cropped region, so every extracted string arrives already labeled with its field class.
+Financial institutions ingest checks, identification forms, and statements as images, and downstream systems need to know which string is the account number, which is the date, and which is the amount. Page-level OCR returns text but not that mapping, and its accuracy is not a fixed number: published evaluations report Tesseract anywhere from 47 percent accuracy on Thai vehicle registration certificates \cite{thammarak2022} to 92.6 percent word recognition on letters \cite{reisswig2019}, with different metrics, document types, resolutions, and preprocessing. A detect-then-read design addresses both problems. An object detector localizes each field, and OCR runs only on the cropped region, so every extracted string arrives already labeled with its field class.
 
 Ultralytics YOLO26 \cite{jocher2026yolo26} is a natural detector for this role. Its end-to-end head does not need non-maximum suppression at inference, which removes a post-processing pass from the serving path. Running it over millions of documents calls for a distributed engine, and Apache Spark \cite{zaharia2012} is the usual choice.
 
@@ -10,8 +10,8 @@ This paper builds the pipeline, runs it, measures it, and releases it. Its scope
 \section{Contributions}
 \begin{itemize}
 \item A complete open implementation of field detection, field-level OCR, and aggregation as one Spark job, with unit and end-to-end tests. One command reproduces the CPU results, and a notebook repeats the study on a GPU.
-\item A catalog of integration defects, each checked against a running system, and the corrected partition-level inference pattern that resolves them (Section~\ref{sec:impl}).
-\item A controlled evaluation on a dataset with exact ground truth: detection precision and recall, end-to-end field accuracy against a full-page Tesseract baseline, and a measured comparison of three ways to run the same model inside Spark (Section~\ref{sec:results}).
+\item A catalog of integration defects, marked by whether we reproduced them by running code or found them by inspection, and the corrected partition-level inference pattern that resolves them (Section~\ref{sec:impl}).
+\item An evaluation on a dataset with exact ground truth, with one training run per device: detection precision and recall, end-to-end field accuracy against a full-page Tesseract baseline, and a measured comparison of three ways to run the same model inside Spark (Section~\ref{sec:results}).
 \item A deployment design for AWS EMR with RAPIDS, kept separate from what was measured, including when the batch design is and is not appropriate (Section~\ref{sec:design}).
 \end{itemize}
 

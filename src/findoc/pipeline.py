@@ -1,10 +1,11 @@
 """Partition-level Spark pipeline: YOLO26 field detection + Tesseract OCR.
 
-Corrected version of the paper's Listing 2. Design points, each validated by
-tests/ and by scripts/run_e2e.sh:
+Corrected version of the paper's Listing 1. Design points, covered by the
+end-to-end test in tests/ unless noted:
 
 * Images are read with Spark's ``binaryFile`` source, which returns the
-  *encoded* file bytes (JPEG/PNG) and works for local paths, HDFS and s3://.
+  *encoded* file bytes (JPEG/PNG). It is tested here on local paths only; HDFS and
+  s3:// URIs are supported by Spark but were not tested.
   (Spark's ``image`` source returns decoded raw BGR pixels instead, which is
   not decodable with an image library, so it is not used here.)
 * The model is loaded once per partition inside ``mapInPandas``, shipped to

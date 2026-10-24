@@ -2,7 +2,7 @@
 
 Uses the pretrained COCO yolo26n.pt (auto-downloaded), so it checks that the
 plumbing is correct (decode -> batched detect -> crop -> OCR -> parquet ->
-aggregate), not detection quality. Quality is measured by `make evaluate`.
+aggregate), not detection quality. Quality is measured by `make protocol`.
 """
 import pandas as pd
 import pytest

@@ -27,8 +27,9 @@ protocol:        ## per variant: pick confidence on val, score on test once, plu
 pattern:         ## row-wise UDF vs per-partition inference, real model (about 10 min on 2 cores)
 	$(PY) benchmarks/inference_pattern_benchmark.py $(DATA)/images/test $(RUNS)/synth/weights/best.onnx --docs 48 --partitions 2 --repeats 3 --out $(RESULTS)/pattern.json
 
-artifacts:       ## regenerate paper macros and charts from results/*.json
+artifacts:       ## regenerate paper macros, charts and docs/RESULTS.md from results/*.json
 	$(PY) scripts/make_paper_artifacts.py
+	$(PY) scripts/make_results_md.py
 
 paper:           ## build paper/paper.pdf
 	cd paper && pdflatex -interaction=nonstopmode paper.tex && pdflatex -interaction=nonstopmode paper.tex

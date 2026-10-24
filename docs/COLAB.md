@@ -1,6 +1,6 @@
 # Running on a GPU with Google Colab
 
-The paper's numbers come from a 2-core CPU machine. This notebook repeats the full study on a GPU and writes to `results_gpu/`, so nothing from the CPU run is overwritten.
+The paper's main numbers come from a 2-core CPU machine. This notebook repeats the full study on a GPU and writes to `results_gpu/`, so nothing from the CPU run is overwritten.
 
 1. Open `notebooks/colab_gpu_run.ipynb` in Colab (File > Open notebook > GitHub, or upload it).
 2. Runtime > Change runtime type > T4 GPU.
