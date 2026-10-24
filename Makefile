@@ -1,4 +1,4 @@
-.PHONY: help install data train protocol pattern artifacts paper e2e test clean
+.PHONY: help install data train protocol rules ablation seeds pattern artifacts paper e2e test clean
 
 PY ?= python
 DATA ?= work/data
@@ -24,6 +24,15 @@ train:           ## fine-tune YOLO26 and export ONNX (CPU: about 35 min for yolo
 protocol:        ## per variant: pick confidence on val, score on test once, plus full-page Tesseract baseline
 	$(PY) -m findoc.protocol $(DATA) $(RUNS)/synth/weights/best.onnx $(RESULTS)
 
+rules:           ## rule-based baseline (full-page OCR + one regex per class) on the test split
+	$(PY) -m findoc.rules_baseline $(DATA) test $(RESULTS)/rules_baseline.json
+
+ablation:        ## OCR crop handling ablation on the validation split
+	$(PY) benchmarks/ocr_crop_ablation.py $(DATA) $(RUNS)/synth/weights/best.onnx $(RESULTS)/ocr_crop_ablation.json --conf 0.15
+
+seeds:           ## training-seed variance (GPU recommended, about 10 min per seed on a T4)
+	$(PY) benchmarks/seed_study.py $(DATA) --seeds 1 2 3 4 --device $(DEVICE) --out $(RESULTS)_seeds
+
 pattern:         ## row-wise UDF vs per-partition inference, real model (about 10 min on 2 cores)
 	$(PY) benchmarks/inference_pattern_benchmark.py $(DATA)/images/test $(RUNS)/synth/weights/best.onnx --docs 48 --partitions 2 --repeats 3 --out $(RESULTS)/pattern.json
 
@@ -34,7 +43,7 @@ artifacts:       ## regenerate paper macros, charts and docs/RESULTS.md from res
 paper:           ## build paper/paper.pdf
 	cd paper && pdflatex -interaction=nonstopmode paper.tex && pdflatex -interaction=nonstopmode paper.tex
 
-e2e: data train protocol pattern artifacts   ## everything, in order
+e2e: data train protocol rules ablation pattern artifacts   ## everything, in order
 
 test:
 	$(PY) -m pytest -q

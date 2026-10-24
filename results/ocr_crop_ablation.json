@@ -1,0 +1,82 @@
+{
+  "split": "val",
+  "conf": 0.15,
+  "nms_iou": 0.5,
+  "rows": [
+    {
+      "config": "as reported (pad 0)",
+      "pad": 0,
+      "scale": 1.0,
+      "binarize": false,
+      "end_to_end": 0.975,
+      "ocr_errors": 3,
+      "per_class_ocr": {
+        "account_number": 0.9655,
+        "amount": 0.9833,
+        "date": 1.0,
+        "name": 1.0,
+        "signature": null
+      }
+    },
+    {
+      "config": "pad 4",
+      "pad": 4,
+      "scale": 1.0,
+      "binarize": false,
+      "end_to_end": 0.9708,
+      "ocr_errors": 4,
+      "per_class_ocr": {
+        "account_number": 0.9828,
+        "amount": 0.9667,
+        "date": 0.9833,
+        "name": 1.0,
+        "signature": null
+      }
+    },
+    {
+      "config": "pad 8",
+      "pad": 8,
+      "scale": 1.0,
+      "binarize": false,
+      "end_to_end": 0.9792,
+      "ocr_errors": 2,
+      "per_class_ocr": {
+        "account_number": 1.0,
+        "amount": 0.9667,
+        "date": 1.0,
+        "name": 1.0,
+        "signature": null
+      }
+    },
+    {
+      "config": "pad 4, upscale 2x",
+      "pad": 4,
+      "scale": 2.0,
+      "binarize": false,
+      "end_to_end": 0.9333,
+      "ocr_errors": 13,
+      "per_class_ocr": {
+        "account_number": 0.931,
+        "amount": 0.9333,
+        "date": 0.9167,
+        "name": 1.0,
+        "signature": null
+      }
+    },
+    {
+      "config": "pad 4, upscale 2x, Otsu",
+      "pad": 4,
+      "scale": 2.0,
+      "binarize": true,
+      "end_to_end": 0.9833,
+      "ocr_errors": 1,
+      "per_class_ocr": {
+        "account_number": 0.9828,
+        "amount": 1.0,
+        "date": 1.0,
+        "name": 1.0,
+        "signature": null
+      }
+    }
+  ]
+}

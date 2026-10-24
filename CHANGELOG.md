@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Added a rule-based baseline (`findoc.rules_baseline`, `make rules`): full-page OCR plus one regex per class reads 99.2% of test fields, more than the detector pipeline (97.1%). The paper now says the detector gives no accuracy benefit on this synthetic data.
+- Added an OCR crop-handling ablation on the validation split (`make ablation`). The paper previously said the crop had four pixels of padding, which was wrong: the code crops the exact box with no padding. Fixed. Defaults are unchanged, so no reported number moves.
+- Added `benchmarks/seed_study.py` and Colab cells for four more training seeds and a larger model; results not yet available.
+- Moved the AWS deployment figure and text out of the paper (docs only); added `results/PROVENANCE.md` with file hashes.
+
 - Independent audit (2026-10-23) found and fixed: overclaiming wording ("controlled", "each checked against a running system"), a mislabeled confidence statistic, per-batch (not per-partition) partial aggregation, stale GPU statements in docs, rounding of x.x5 values (now half up), and missing CPU environment record (`results/environment.json`). Regression check: rerunning the protocol with the released code on the stored CPU weights reproduced all eight CPU evaluation files exactly.
 
 - README rewritten: roles of YOLO26, Tesseract and Spark, what the paper claims, results for CPU and GPU, and a tested command for running on your own images. Paper: removed stale "no GPU" statements, corrected the generator description (one randomized generator, not five templates), and narrowed the reproduction claim to the CPU results.

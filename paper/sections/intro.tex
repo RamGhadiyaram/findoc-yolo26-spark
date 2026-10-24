@@ -5,14 +5,13 @@ Ultralytics YOLO26 \cite{jocher2026yolo26} is a natural detector for this role. 
 
 The difficulty is that a model call inside a Spark job looks routine and fails quietly. The RAPIDS Accelerator for Apache Spark \cite{nvidia_udf,nvidia_rapids} accelerates Spark\textquotesingle{}s own SQL and DataFrame plan on GPU. It does not accelerate Python code that loads a model inside a user-defined function, so enabling it does not make model inference fast. The first version of this pipeline contained several such defects, some in the model call pattern, some in data access, and some in the toolchain. We found them only after running the code, which is the reason this paper reports a running system and not a design alone.
 
-This paper builds the pipeline, runs it, measures it, and releases it. Its scope is deliberately narrow. All reported accuracy is on a synthetic form dataset whose labels are exact by construction, timing is on a two-core CPU with one replication on a single GPU, and the AWS EMR and multi-GPU deployment is presented as design, not as measurement.
+This paper builds the pipeline, runs it, measures it, and releases it. Its scope is deliberately narrow. All reported accuracy is on a synthetic form dataset whose labels are exact by construction, timing is on a two-core CPU with one replication on a single GPU, and an AWS EMR deployment is described in the repository documentation but not evaluated.
 
 \section{Contributions}
 \begin{itemize}
 \item A complete open implementation of field detection, field-level OCR, and aggregation as one Spark job, with unit and end-to-end tests. One command reproduces the CPU results, and a notebook repeats the study on a GPU.
 \item A catalog of integration defects, marked by whether we reproduced them by running code or found them by inspection, and the corrected partition-level inference pattern that resolves them (Section~\ref{sec:impl}).
 \item An evaluation on a dataset with exact ground truth, with one training run per device: detection precision and recall, end-to-end field accuracy against a full-page Tesseract baseline, and a measured comparison of three ways to run the same model inside Spark (Section~\ref{sec:results}).
-\item A deployment design for AWS EMR with RAPIDS, kept separate from what was measured, including when the batch design is and is not appropriate (Section~\ref{sec:design}).
 \end{itemize}
 
 \section{Related Work}

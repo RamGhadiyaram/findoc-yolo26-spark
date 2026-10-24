@@ -69,8 +69,16 @@ p = json.loads((r / "pattern.json").read_text())
 print("pattern device:", p.get("device"))
 for k, m in p["modes"].items():
     print(f"{k:14s} {m['seconds_mean']:6.1f}s +/- {m['seconds_sd']:.1f}  speedup vs row UDF: {m['speedup_vs_row_udf']}x")"""),
+    M("""## Optional extras (about 45 minutes more). Set RUN_EXTRAS = False to skip."""),
+    C("""# 9b. Training-seed variance: 4 more seeds on the same data (answers "one seed is fragile")
+RUN_EXTRAS = True
+if RUN_EXTRAS:
+    !python benchmarks/seed_study.py work/data --seeds 1 2 3 4 --device 0 --out results_gpu_seeds"""),
+    C("""# 9c. A larger YOLO26 variant (small) with the same protocol, written to results_gpu_s/
+if RUN_EXTRAS:
+    !make DEVICE=0 RUNS=work/runs_s RESULTS=results_gpu_s MODEL=yolo26s.pt train protocol"""),
     C("""# 10. Bundle results and download. Send results_gpu.zip back so the paper tables can be regenerated.
-!zip -qr results_gpu.zip results_gpu
+!zip -qr results_gpu.zip results_gpu results_gpu_seeds results_gpu_s || true
 from google.colab import files
 files.download("results_gpu.zip")"""),
     M("""Optional: save a copy to Google Drive instead of downloading.

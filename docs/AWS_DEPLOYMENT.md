@@ -20,3 +20,8 @@
 ## Not measured
 
 GPU throughput, multi-node scaling, cluster cold start, cost per thousand documents, and Amazon Textract comparison.
+
+
+## Architecture sketch
+
+The diagram source is `paper/figures/architecture.dot` (rendered in `architecture.png`). Solid boxes are the Spark job that is measured in the paper. Dashed boxes are this design, which has not been run.
