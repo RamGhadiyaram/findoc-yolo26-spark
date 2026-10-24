@@ -1,21 +1,11 @@
 \section{System Design}\label{sec:design}
-Fig.~\ref{fig:arch} shows the full ingestion-to-analytics design. Solid boxes inside the Spark job are implemented and measured in this paper. Dashed boxes are the AWS deployment around it, which we describe but did not run.
-
-\begin{figure*}[t]
-\centering
-\includegraphics[width=0.98\textwidth]{figures/architecture.png}
-\caption{Target architecture. The Spark job (solid) is implemented and measured here on a two-core CPU, with one repeat on a single GPU. Dashed components, including EMR with GPU nodes, Step Functions, Glue, and Redshift, are design only and were not exercised. Reading from S3 was not tested.}
-\label{fig:arch}
-\end{figure*}
+This section describes the Spark job that is implemented and measured in this paper. A design for deploying it on AWS EMR is kept in the repository documentation and is not evaluated here.
 
 \subsection{Spark job}
 The job reads images with Spark\textquotesingle{}s \texttt{binaryFile} source, which returns the encoded file bytes unchanged. A \texttt{mapInPandas} function then runs once per partition. It loads the model once, decodes each Arrow batch of images, makes one batched detector call, crops every detected field from the original image, and runs Tesseract in single-line mode on each crop. Signature regions are detected but not read. Output is long format, one row per detected field, written as Parquet. A final step computes per-class mean confidence with a two-phase aggregation: each Arrow batch emits a partial sum and count, and Spark performs the final reduce. That step uses cuDF when RAPIDS is installed and pandas otherwise.
 
-\subsection{Target deployment on AWS}
-An upload to S3 raises an event, AWS Step Functions \cite{stepfunctions} launches or resizes an Amazon EMR \cite{emr} cluster, the Spark job runs, and structured output reaches Redshift through Glue. On a GPU cluster the detector would run on the device that Spark assigns to each task, using Spark\textquotesingle{}s custom resource scheduling \cite{spark_resources}, with one GPU per task slot. The pipeline module reads that device index from the task context and sets the corresponding Spark configuration when started with \texttt{--gpu}. We ran a GPU only in local mode, by naming the device in an environment variable (Section~\ref{sec:gpu}). The Spark GPU-scheduling path started with \texttt{--gpu} was not exercised, so it is untested.
-
-\subsection{Where this design applies}
-The design targets batch and micro-batch workloads, such as an overnight queue of scanned documents or a stream drained every few minutes. It does not target sub-second per-request latency. A cold EMR cluster adds a start-up cost that we did not measure and that no steady-state throughput figure includes. Interactive use would call for a warm cluster, EMR Serverless, or a plain model server in front of the same detector and OCR code.
+\subsection{Scope of deployment}
+The design targets batch and micro-batch workloads, such as an overnight queue of scanned documents, and not sub-second per-request latency. A cluster start-up cost is not measured. We ran a GPU only in local mode, by naming the device in an environment variable (Section~\ref{sec:gpu}). The code can also read the device that Spark assigns to each task under its custom resource scheduling \cite{spark_resources} when started with \texttt{--gpu}, but that path was not exercised, so it is untested. The AWS EMR design is described in \texttt{docs/AWS\_DEPLOYMENT.md} and is not evaluated.
 
 \section{Implementation and Defects}\label{sec:impl}
 Table~\ref{tab:defects} lists the defects found in the first version of this pipeline. Rows 1 to 4 were reproduced by running code, and the per-row cost in row 4 is measured in Section~\ref{sec:results}. Rows 5 to 8 were found by inspecting the first version, and row 7 was not exercised under Spark GPU scheduling. Row 8 concerns code from that first version that is not in the released repository.

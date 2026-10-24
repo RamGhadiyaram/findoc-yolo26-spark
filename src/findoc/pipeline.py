@@ -62,6 +62,22 @@ PARTIAL_SCHEMA = StructType([
 NO_OCR_CLASSES = {"signature"}
 
 
+def prepare_crop(im: np.ndarray, box: tuple[float, float, float, float], pad: int = 0, scale: float = 1.0,
+                 binarize: bool = False) -> np.ndarray | None:
+    """Grayscale crop for OCR. Defaults (no padding, no scaling, no thresholding) are what the paper reports."""
+    h, w = im.shape[:2]
+    x1, y1, x2, y2 = box
+    crop = im[max(int(y1) - pad, 0):min(int(y2) + pad, h), max(int(x1) - pad, 0):min(int(x2) + pad, w)]
+    if not crop.size:
+        return None
+    gray = cv2.cvtColor(crop, cv2.COLOR_BGR2GRAY)
+    if scale != 1.0:
+        gray = cv2.resize(gray, None, fx=scale, fy=scale, interpolation=cv2.INTER_CUBIC)
+    if binarize:
+        gray = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
+    return gray
+
+
 def build_spark(master: str = "local[*]", gpu: bool = False, arrow_batch: int = 16) -> SparkSession:
     b = (
         SparkSession.builder.appName("findoc-yolo26")
@@ -116,7 +132,8 @@ def class_nms(cands: list[tuple], iou_thr: float) -> list[tuple]:
     return keep
 
 
-def make_detect_fn(model_basename: str, ocr_lang: str = "eng", conf: float = 0.25, nms_iou: float = 0.0):
+def make_detect_fn(model_basename: str, ocr_lang: str = "eng", conf: float = 0.25, nms_iou: float = 0.0,
+                   pad: int = 0, scale: float = 1.0, binarize: bool = False):
     """Return the mapInPandas function. Closure holds only small picklable values."""
 
     def detect_partition(batches: Iterator[pd.DataFrame]) -> Iterator[pd.DataFrame]:
@@ -145,9 +162,8 @@ def make_detect_fn(model_basename: str, ocr_lang: str = "eng", conf: float = 0.2
                     for cls, cf, x1, y1, x2, y2 in cands:
                         text = ""
                         if cls not in NO_OCR_CLASSES:
-                            crop = im[max(int(y1), 0):min(int(y2), h), max(int(x1), 0):min(int(x2), w)]
-                            if crop.size:
-                                gray = cv2.cvtColor(crop, cv2.COLOR_BGR2GRAY)
+                            gray = prepare_crop(im, (x1, y1, x2, y2), pad, scale, binarize)
+                            if gray is not None:
                                 text = pytesseract.image_to_string(
                                     gray, lang=ocr_lang, config="--psm 7").strip()
                         rows.append((path, cls, cf, x1, y1, x2, y2, text))
@@ -173,7 +189,7 @@ def partial_aggregate(batches: Iterator[pd.DataFrame]) -> Iterator[pd.DataFrame]
 
 def run(images: str, model: str, out: str, master: str = "local[*]", gpu: bool = False,
         partitions: int | None = None, glob: str = "*.jpg", conf: float = 0.25,
-        nms_iou: float = 0.0) -> dict:
+        nms_iou: float = 0.0, pad: int = 0, scale: float = 1.0, binarize: bool = False) -> dict:
     spark = build_spark(master, gpu)
     spark.sparkContext.addFile(model)
     t0 = time.perf_counter()
@@ -183,7 +199,7 @@ def run(images: str, model: str, out: str, master: str = "local[*]", gpu: bool =
     if partitions:
         df = df.repartition(partitions)
 
-    fields = df.mapInPandas(make_detect_fn(os.path.basename(model), conf=conf, nms_iou=nms_iou), schema=FIELD_SCHEMA)
+    fields = df.mapInPandas(make_detect_fn(os.path.basename(model), conf=conf, nms_iou=nms_iou, pad=pad, scale=scale, binarize=binarize), schema=FIELD_SCHEMA)
     fields.write.mode("overwrite").parquet(out)
 
     written = spark.read.parquet(out)  # re-read so the timing covers the full job exactly once
@@ -199,6 +215,7 @@ def run(images: str, model: str, out: str, master: str = "local[*]", gpu: bool =
     spark.stop()
     return {"docs": n_docs, "fields": n_fields, "seconds": round(elapsed, 2),
             "docs_per_second": round(n_docs / elapsed, 3), "cudf": HAVE_CUDF, "conf": conf, "nms_iou": nms_iou,
+            "pad": pad, "scale": scale, "binarize": binarize,
             "per_class": summary.to_dict("records")}
 
 
@@ -215,9 +232,12 @@ def main(argv: list[str] | None = None) -> dict:
     ap.add_argument("--glob", default="*.jpg")
     ap.add_argument("--conf", type=float, default=0.25, help="detection confidence threshold")
     ap.add_argument("--nms-iou", type=float, default=0.0, help="if > 0, apply class-wise NMS at this IoU before OCR (default: off, NMS-free)")
+    ap.add_argument("--pad", type=int, default=0, help="pixels of padding around each OCR crop (default 0, as reported)")
+    ap.add_argument("--scale", type=float, default=1.0, help="upscale factor for OCR crops (default 1)")
+    ap.add_argument("--binarize", action="store_true", help="Otsu threshold before OCR (default off)")
     ap.add_argument("--report", help="Write run summary JSON here")
     a = ap.parse_args(argv)
-    res = run(a.images, a.model, a.out, a.master, a.gpu, a.partitions, a.glob, a.conf, a.nms_iou)
+    res = run(a.images, a.model, a.out, a.master, a.gpu, a.partitions, a.glob, a.conf, a.nms_iou, a.pad, a.scale, a.binarize)
     print(json.dumps(res, indent=2))
     if a.report:
         with open(a.report, "w") as f:

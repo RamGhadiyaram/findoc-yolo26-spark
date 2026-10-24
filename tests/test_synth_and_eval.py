@@ -56,3 +56,27 @@ def test_missing_fonts_fail_loudly(monkeypatch):
         synth._font(20, random.Random(0))
     monkeypatch.setenv("FINDOC_ALLOW_DEFAULT_FONT", "1")
     assert synth._font(20, random.Random(0)) is not None
+
+
+def test_prepare_crop_defaults_are_the_plain_crop():
+    import cv2
+
+    from findoc.pipeline import prepare_crop
+
+    im = (np.arange(60 * 100 * 3) % 251).astype(np.uint8).reshape(60, 100, 3)
+    plain = cv2.cvtColor(im[10:30, 20:60], cv2.COLOR_BGR2GRAY)
+    assert np.array_equal(prepare_crop(im, (20.4, 10.9, 60.2, 30.7)), plain)  # int() truncation, no padding
+    assert prepare_crop(im, (20, 10, 60, 30), pad=4).shape == (28, 48)
+    assert prepare_crop(im, (20, 10, 60, 30), scale=2.0).shape == (40, 80)
+    assert set(np.unique(prepare_crop(im, (20, 10, 60, 30), binarize=True))) <= {0, 255}
+    assert prepare_crop(im, (500, 500, 600, 600)) is None
+
+
+def test_rule_patterns_match_generator_formats():
+    from findoc.rules_baseline import PATTERNS
+
+    page = "ACCOUNT FORM  Maria Rossi 5055730749 on 10/14/2020 paid $29,421.91"
+    assert PATTERNS["account_number"].findall(page) == ["5055730749"]
+    assert PATTERNS["date"].findall(page) == ["10/14/2020"]
+    assert PATTERNS["amount"].findall(page) == ["$29,421.91"]
+    assert PATTERNS["name"].findall(page) == ["Maria Rossi"]

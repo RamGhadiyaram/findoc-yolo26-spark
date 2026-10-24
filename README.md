@@ -24,7 +24,7 @@ image  ->  YOLO26 finds field boxes  ->  crop each box  ->  Tesseract reads the 
 1. **Putting a model inside Spark is easy to get wrong.** The first version of this pipeline had several defects that only showed up when the code was run, for example Spark's `image` source returning raw pixels instead of file bytes. The paper lists each one and the fix (Table I).
 2. **Load the model once per group of images, not once per image.** Doing it per partition with `mapInPandas` was 1.7 times faster than per row on two CPU cores, and 2.1 times faster on a GPU.
 3. **The new end-to-end YOLO head still needs cleanup.** At the default threshold it produced 90 duplicate boxes, and precision fell to 75.9%. Removing duplicates of the same class before reading brought precision to 98.7%.
-4. **The accuracy numbers come with limits.** The data is synthetic and easy, so absolute accuracy says little about real scans. A plain full-page Tesseract run also finds almost every string, but it cannot say which field a string belongs to, so the paper does not claim an accuracy win.
+4. **The accuracy numbers come with limits.** The data is synthetic and easy, so absolute accuracy says little about real scans. A plain full-page Tesseract run also finds almost every string, and a simple rule-based baseline (full-page OCR plus one regular expression per field type) reads 99.2% of the fields, more than the detector pipeline. So on this data the detector gives no accuracy benefit. Whether it helps on messy real scans is the open question.
 5. **A GPU did not help this small model.** Training was much faster on a T4 GPU, inference was not, and detection and reading results stayed the same.
 
 ## Results
@@ -37,6 +37,7 @@ All numbers are produced by the code here from the files in `results/` (CPU) and
 | Text fields read correctly end to end | 97.1% (95% interval 94.1 to 98.6) | 98.3% (95% interval 95.8 to 99.4) |
 | Row-wise vs per-partition inference speedup | 1.7x | 2.1x |
 | Training time, 15 epochs | 32 min | 117 s |
+| Rule-based baseline (full-page OCR + regexes), fields read correctly | 99.2% | not run |
 
 Each column is a single training run. Small differences between columns are not significant.
 
@@ -78,6 +79,8 @@ make paper           # builds paper/paper.pdf
 | data | `make data` | 360 synthetic forms with exact boxes and text | 20 s |
 | train | `make train` | fine-tune YOLO26n for 15 epochs, export ONNX with dynamic batch | 32 min |
 | protocol | `make protocol` | choose the confidence threshold on validation, score test once, plus a full-page Tesseract baseline | 6 min |
+| rules | `make rules` | rule-based baseline: full-page OCR plus one regular expression per field type | 1 min |
+| ablation | `make ablation` | OCR crop handling (padding, upscaling, thresholding) on the validation split | 8 min |
 | pattern | `make pattern` | row-wise UDF vs per-partition inference with the real model | 5 min |
 
 Training is not bit-for-bit repeatable across machines, so a rerun gives numbers close to, not identical to, the published ones. The test images themselves are identical when the same fonts are installed (SHA-256 recorded in `results_gpu/environment.json`).
@@ -97,7 +100,7 @@ The output is a Parquet table with one row per detected field and the columns `p
 3. Runtime, Run all (30 to 60 minutes).
 4. Download `results_gpu.zip` from the last cell.
 
-Details and caveats: [`docs/COLAB.md`](docs/COLAB.md). This runs Spark in local mode on one GPU. It does not test Spark's multi-GPU scheduling.
+The notebook also has an optional extras section that runs four more training seeds and a larger YOLO26 variant (about 45 more minutes). Details and caveats: [`docs/COLAB.md`](docs/COLAB.md). This runs Spark in local mode on one GPU. It does not test Spark's multi-GPU scheduling.
 
 ## Layout
 
@@ -106,7 +109,7 @@ src/findoc/   synth.py  train.py  export.py  pipeline.py  evaluate.py  protocol.
 benchmarks/   inference_pattern_benchmark.py
 notebooks/    colab_gpu_run.ipynb
 tests/        unit tests and an end-to-end Spark test
-results/      JSON from the CPU runs (the paper reads these)
+results/      JSON from the CPU runs (the paper reads these); PROVENANCE.md lists file hashes
 results_gpu/  JSON from the Colab T4 run
 paper/        LaTeX source, figures, results_macros.tex (generated)
 docs/         REQUIREMENTS, RESULTS, DATASETS, COLAB, AWS_DEPLOYMENT

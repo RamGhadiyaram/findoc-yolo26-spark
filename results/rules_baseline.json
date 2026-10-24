@@ -1,0 +1,13 @@
+{
+  "split": "test",
+  "fields": 240,
+  "first_match_accuracy": 0.9917,
+  "any_match_accuracy": 0.9917,
+  "per_class_first_match": {
+    "account_number": 1.0,
+    "date": 1.0,
+    "amount": 0.9667,
+    "name": 1.0
+  },
+  "seconds_per_doc": 0.873
+}
