@@ -7,7 +7,7 @@ Everything in `docs/RESULTS.md` was produced on this configuration:
 | Component | Version | Notes |
 |---|---|---|
 | OS | Ubuntu 24.04, Linux 6.x | any recent Linux or macOS should work |
-| CPU | 2 vCPU Intel Xeon, 7 GB RAM | no GPU used for any reported number |
+| CPU | 2 vCPU Intel Xeon, 7 GB RAM | no GPU needed for the CPU results; the GPU replication used a Colab T4 (see COLAB.md) |
 | Python | 3.13 | 3.10 to 3.13 supported |
 | Java | OpenJDK 21 | 17 or 21; Spark 4.0 needs 17+ |
 | Apache Spark (PySpark) | 4.0.1 | see "Why Spark 4" below |
@@ -49,7 +49,7 @@ java.nio.DirectByteBuffer.<init>(long, int) not available`, even with
 `--add-opens` flags. PySpark 4.0 works on JDK 21. If you must stay on Spark 3.5,
 use JDK 11 or 17.
 
-## GPU deployment (optional, not exercised by the reported numbers)
+## GPU deployment (optional). The Spark GPU-scheduling path below was not exercised; the reported GPU run used one GPU in local mode via `FINDOC_DEVICE=0`
 
 - NVIDIA GPU with CUDA 12 driver, one GPU per Spark task slot
 - RAPIDS Accelerator jar matching your Spark version, plus `requirements-gpu.txt` (cuDF)

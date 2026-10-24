@@ -1,0 +1,37 @@
+{
+  "python": "3.13.16",
+  "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
+  "tesseract": "tesseract 5.3.4",
+  "java": "openjdk version \"21.0.12.1\" 2026-08-18",
+  "gpu": "unavailable (FileNotFoundError)",
+  "packages": {
+    "ultralytics": "8.4.183",
+    "torch": "2.14.1",
+    "onnxruntime": "1.29.0",
+    "onnxruntime-gpu": "not installed",
+    "pyspark": "4.0.1",
+    "pytesseract": "0.3.13",
+    "opencv-python-headless": "5.0.0.93",
+    "numpy": "2.5.3",
+    "pillow": "12.3.0"
+  },
+  "fonts_found": [
+    "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+    "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf",
+    "/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf"
+  ],
+  "test_images": 60,
+  "test_images_sha256": "225dd787d8228ec95434771a7af92d89557b689a3b0aa89bbc937ecc6ad3113c",
+  "onnx_session_providers": [
+    "AzureExecutionProvider",
+    "CPUExecutionProvider"
+  ],
+  "onnx_available_providers": [
+    "AzureExecutionProvider",
+    "CPUExecutionProvider"
+  ],
+  "ultralytics_session_providers": [
+    "CPUExecutionProvider"
+  ],
+  "note": "Recorded on the CPU machine on 2026-10-23 after the CPU runs, with the same repository code lineage. It documents versions and the test-image hash, not the state during the runs. The hash matches the one first computed on 2026-10-22 and the one reproduced independently by a reviewer on another environment."
+}

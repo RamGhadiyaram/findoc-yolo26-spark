@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import math
+from decimal import ROUND_HALF_UP, Decimal
 from pathlib import Path
 
 import matplotlib
@@ -23,7 +24,6 @@ OUT_TEX = ROOT / "paper" / "results_macros.tex"
 FIG = ROOT / "paper" / "figures"
 CLASSES = ["account_number", "date", "amount", "name", "signature"]
 LABEL = {"account_number": "account no.", "date": "date", "amount": "amount", "name": "name", "signature": "signature"}
-CPU_TEST_SHA256 = "225dd787d8228ec95434771a7af92d89557b689a3b0aa89bbc937ecc6ad3113c"  # hash of the CPU run test images, recorded 2026-10-22
 VARIANTS = {"Def": "default", "Free": "nms_free", "Nms": "class_nms"}
 
 
@@ -32,7 +32,9 @@ def load(name: str, base: Path | None = None) -> dict:
 
 
 def pct(x: float, nd: int = 1) -> str:
-    return f"{100 * x:.{nd}f}"
+    """Percent string, rounding halves up (91.25 -> 91.3) rather than to even."""
+    q = Decimal(1).scaleb(-nd)
+    return str((Decimal(str(round(x, 6))) * 100).quantize(q, rounding=ROUND_HALF_UP))
 
 
 def wilson(k: float, n: int, z: float = 1.96) -> tuple[float, float]:
@@ -67,6 +69,7 @@ def main() -> None:
         tot_ok = sum(round(c["ocr_exact"] * round(c["recall"] * c["n"])) for c in e["per_class"].values() if c["ocr_exact"] is not None)
         tot_n = sum(round(c["recall"] * c["n"]) for c in e["per_class"].values() if c["ocr_exact"] is not None)
         m[f"{k}OcrStage"] = pct(tot_ok / tot_n) if tot_n else "--"
+    m["NmsExtra"] = str(run["Nms"]["fields"] - round(ev["Nms"]["overall_recall"] * N_FIELDS))
     m["NmsChosenValF"] = pct(ev["Nms"]["val_f1_at_chosen"])
     m["FreeChosenValF"] = pct(ev["Free"]["val_f1_at_chosen"])
     m["BaseCapture"] = pct(ev["Nms"]["fullpage_tesseract_field_capture"])
@@ -100,7 +103,8 @@ def main() -> None:
         gt, gp = load("train_summary.json", RES_GPU), load("pattern.json", RES_GPU)
         m["GpuName"] = env["gpu"].split(",")[0].replace("Tesla ", "")
         m["GpuTestHash"] = env["test_images_sha256"][:8]
-        m["GpuHashMatches"] = "identical" if env["test_images_sha256"] == CPU_TEST_SHA256 else "different"
+        cpu_env = load("environment.json")
+        m["GpuHashMatches"] = "identical" if env["test_images_sha256"] == cpu_env["test_images_sha256"] else "different"
         m["GpuProvider"] = env["ultralytics_session_providers"][0].replace("ExecutionProvider", "")
         m["GpuTrainSeconds"] = f"{gt['train_seconds']:.0f}"
         m["GpuMapFifty"], m["GpuMapFiftyNinetyFive"] = f"{gt['val_map50']:.3f}", f"{gt['val_map50_95']:.3f}"
@@ -109,6 +113,7 @@ def main() -> None:
             m[f"Gpu{k}Prec"], m[f"Gpu{k}Rec"] = pct(e["overall_precision"]), pct(e["overall_recall"])
             m[f"Gpu{k}EndToEnd"], m[f"Gpu{k}Conf"] = pct(e["pipeline_end_to_end_field_accuracy"]), f"{r['conf']:.2f}"
             m[f"Gpu{k}Dup"], m[f"Gpu{k}Missed"] = str(e["duplicate_boxes"]), str(e["missed_fields"])
+            m[f"Gpu{k}Extra"] = str(r["fields"] - round(e["overall_recall"] * N_FIELDS))
             lo, hi = wilson(round(e["pipeline_end_to_end_field_accuracy"] * N_TEXT), N_TEXT)
             m[f"Gpu{k}EndToEndLo"], m[f"Gpu{k}EndToEndHi"] = pct(lo), pct(hi)
         fb = ROOT / "results_gpu_font_fallback"

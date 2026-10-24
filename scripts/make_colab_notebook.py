@@ -27,9 +27,11 @@ print("torch", torch.__version__, "| cuda", torch.version.cuda, "|", torch.cuda.
 !tesseract --version 2>&1 | head -1"""),
     C("""# 3. Get the code. Change REPO if you use a fork or an anonymized mirror.
 REPO = "https://github.com/RamGhadiyaram/findoc-yolo26-spark"
+REF = "main"  # pin a commit hash here to run exactly that code
 import os
 if not os.path.isdir("/content/findoc"):
-    !git clone --depth 1 {REPO} /content/findoc
+    !git clone {REPO} /content/findoc
+    !git -C /content/findoc checkout {REF}
 %cd /content/findoc
 !git log --oneline | head -1"""),
     C("""# 4. Python deps. Swap onnxruntime for the GPU build so ONNX inference can use CUDA.
